@@ -10,6 +10,7 @@
 /vendor/
 /node_modules/
 /config/secrets/
+/assets/styles/css/*.css.map
 ###< symfony/framework-bundle ###
 
 ###> phpunit/phpunit ###
