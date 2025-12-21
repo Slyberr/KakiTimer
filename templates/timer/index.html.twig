@@ -6,7 +6,13 @@
 {% endblock %}
 {% block body %}
 {{parent()}}
-Scramble : {{ scramble }}
+<h2>Scramble : {{ scramble }}</h2>
+<div class="box-timer">
+<div data-controller="timer"
+    class="timer" data-timer-target="timer">0.00</div>
+</div>
+
+
 
 {% endblock %}
 {% block title %}Hello TimerController!{% endblock %}
