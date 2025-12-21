@@ -1,0 +1,12 @@
+//Fichier de style aux élements globals de l'applications
+//les propriétés pourront être surchargées si besoin.
+
+header {
+    background-color: black;
+    color:blue;
+    margin:0;
+
+    ul {
+        display:flex;
+    }
+}

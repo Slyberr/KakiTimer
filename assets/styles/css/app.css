@@ -1,0 +1,10 @@
+header {
+  background-color: black;
+  color: blue;
+  margin: 0;
+}
+header ul {
+  display: flex;
+}
+
+/*# sourceMappingURL=app.css.map */
