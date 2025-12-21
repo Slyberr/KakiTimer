@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+{% block stylesheets %}
+<link href= '{{ asset("styles/css/solve.css")}}' rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+
+<div class="box-stats-sessions">
+
+    
+    <div class="solves-list" data-timer-target="solves">
+
+    </div>
+    <div class="average-list" data-timer-target="averages">
+    Moyennes : 
+    <div id="ao5">ao5 :</div>
+    <div id="ao12">ao12 :</div>
+    <div id="ao50">ao50 :</div>
+    </div>
+</div>
+{% endblock %}

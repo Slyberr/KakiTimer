@@ -1,0 +1,11 @@
+.box-stats-sessions{
+    display: flex;
+    flex-direction: column;
+    background-color: lightcoral;
+
+    .solves-list{
+        display: flex;
+        background-color: peru;
+        gap: 10px;
+    }
+}

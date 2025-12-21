@@ -4,12 +4,15 @@ namespace App\Controller;
 
 use App\Service\Scramble\ScrambleGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+//La classe pour Gérer le timer et sa logique.
 final class TimerController extends AbstractController
 {
-    #[Route('/timer', name: 'app_timer')]
+    //Arriver sur la page du timer
+    #[Route('/timer', methods:['GET'], name: 'app_timer')]
     public function index(ScrambleGeneratorInterface $scramble): Response
     {
         $date  = time();
@@ -19,4 +22,14 @@ final class TimerController extends AbstractController
              'scramble' => $scramble->generate()
         ]);
     }
+
+    //Générer un nouveau scramble lors de le chornomètre est arrêté.
+    #[Route('/timer/scramble/generate', methods:['GET'], name: 'app_timer_scramble_generate')]
+    public function generateScramble(ScrambleGeneratorInterface $scramble): JsonResponse
+    {
+        $newScramble = $scramble->generate();
+        return new JsonResponse(['newScramble' => $newScramble]);   
+    }
+
+
 }

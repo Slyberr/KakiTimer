@@ -1,3 +1,13 @@
-.timer{
+.box-timer-solves{
+    display: flex;
+    
+}
+
+.box-timer {
+    display: flex;
+    flex-direction: column;
+    background-color: aquamarine;
+}
+.timer {
     font-size: 30px;
 }

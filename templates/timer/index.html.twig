@@ -6,16 +6,17 @@
 {% endblock %}
 {% block body %}
 {{parent()}}
-<h2>Scramble : {{ scramble }}</h2>
-<div class="box-timer">
-<div data-controller="timer"
-    class="timer" data-timer-target="timer">0.00</div>
+
+<div class="box-timer-solves" data-controller="timer" data-timer-url-value="{{ path('app_timer_scramble_generate') }}">
+    <div class="box-timer" >
+        <h2 id="scramble" data-timer-target="scramble">{{ scramble }}</h2>
+
+        <div id="timer"  data-timer-target="timer">0.00</div>
+    </div>
+    
+    {{ include('solve/index.html.twig') }}
+
 </div>
-
-
-
-{% endblock %}
-{% block title %}Hello TimerController!{% endblock %}
 
 
 

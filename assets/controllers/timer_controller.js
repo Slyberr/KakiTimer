@@ -7,11 +7,8 @@ const MIN = 60000;
 
 export default class extends Controller {
 
-
-
-    static targets = ["timer"];
-
-
+    static targets = ["timer","scramble","solves","averages"];
+    static values = { url: String};
 
     connect() {
 
@@ -26,7 +23,7 @@ export default class extends Controller {
         window.addEventListener('keydown', (event) => {
             this.keydown(event);
         })
-
+        console.log(this.urlValue);
     }
 
     keyup(event) {
@@ -75,11 +72,14 @@ export default class extends Controller {
             , 10)
     }
 
-    stop() {
+    async stop() {
         this.timerRunning = false;
         clearInterval(this.intervalID);
         this.actualState = NOT_READY;
         console.log("Temps final : " + this.timerTarget.innerText);
+        await this.refreshScramble();
+        this.saveTime(this.timerTarget.innerText);
+        this.calculateAverages(this.solvesTarget)
     }
 
     //Transformation du temps au format HH:MM:SS.mm
@@ -112,5 +112,43 @@ export default class extends Controller {
 
         valueToPrint += seconds;
         return valueToPrint;
+    }
+
+    async refreshScramble() {
+        try {
+            const response = await fetch(this.urlValue);
+            const data = await response.json(); {
+        }
+
+            this.scrambleTarget.innerText = data.newScramble;
+        }catch (error) {
+            this.scrambleTarget.innerText = "Error Generating scramble."
+        }
+    }
+
+    saveTime(time) { 
+        this.solvesTarget.innerHTML += `<span>${time}</span>`;
+    }
+
+    calculateAverages(times) {
+        let allTimes = this.solvesTarget.children;
+        let mappedsAllTimes = Array.from(allTimes).map(x => parseFloat(x.innerText));
+        if (mappedsAllTimes.length >=5) {
+            this.calculateAverage(mappedsAllTimes.slice(mappedsAllTimes.length-5,mappedsAllTimes.length),5)
+        }
+        if (mappedsAllTimes.length >=12) {
+            this.calculateAverage(mappedsAllTimes.slice(mappedsAllTimes.length-12,mappedsAllTimes.length),12)
+        }
+
+    }
+
+    calculateAverage(times, count) {
+
+        let orderTimes = times.sort()
+        let timeForCal = orderTimes.slice(1,orderTimes.length-1);
+        let sum = timeForCal.reduce((acc,currentVal) => acc + currentVal,0);
+
+        this.averagesTarget.querySelector('#ao'+ count).innerText = `ao${count} : ${(sum / timeForCal.length).toFixed(2)}`;
+
     }
 }
