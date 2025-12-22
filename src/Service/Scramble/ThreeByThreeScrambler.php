@@ -2,8 +2,6 @@
 
 namespace App\Service\Scramble;
 
-use Symfony\Component\Config\Definition\BooleanNode;
-
 final class ThreeByThreeScrambler implements ScrambleGeneratorInterface
 {
 

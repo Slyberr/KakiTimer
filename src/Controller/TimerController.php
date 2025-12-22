@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\Cube\ThreeCube;
 use App\Service\Scramble\ScrambleGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,21 +14,26 @@ final class TimerController extends AbstractController
 {
     //Arriver sur la page du timer
     #[Route('/timer', methods:['GET'], name: 'app_timer')]
-    public function index(ScrambleGeneratorInterface $scramble): Response
+    public function index(ScrambleGeneratorInterface $scramble, ThreeCube $cube): Response
     {
+        $test = $cube->makeCube();
         $date  = time();
+        dd($test);
         return $this->render('timer/index.html.twig', [
             'controller_name' => 'TimerController',
              'date_actuel' => $date,
              'scramble' => $scramble->generate()
+             
         ]);
     }
 
     //Générer un nouveau scramble lors de le chornomètre est arrêté.
     #[Route('/timer/scramble/generate', methods:['GET'], name: 'app_timer_scramble_generate')]
-    public function generateScramble(ScrambleGeneratorInterface $scramble): JsonResponse
+    public function generateScramble(ScrambleGeneratorInterface $scramble, ): JsonResponse
     {
         $newScramble = $scramble->generate();
+        
+        
         return new JsonResponse(['newScramble' => $newScramble]);   
     }
 

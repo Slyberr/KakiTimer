@@ -10,13 +10,15 @@
 <div class="box-timer-solves" data-controller="timer" data-timer-url-value="{{ path('app_timer_scramble_generate') }}">
     <div class="box-timer" >
         <h2 id="scramble" data-timer-target="scramble">{{ scramble }}</h2>
-
+        <h1>{{test}}</h1>
         <div id="timer"  data-timer-target="timer">0.00</div>
     </div>
     
     {{ include('solve/index.html.twig') }}
 
 </div>
+
+{% endblock %}
 
 
 
