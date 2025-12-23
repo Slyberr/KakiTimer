@@ -5,7 +5,6 @@ namespace App\Service\Scramble;
 final class ThreeByThreeScrambler implements ScrambleGeneratorInterface
 {
 
-    private const  POSSIBLE_MOVES  = ['R', 'U', 'L', 'D', 'F', 'B'];
     private const  OPPOSITE_MOVES = array(
         'R' => 'L',
         'L' => 'R',
@@ -14,8 +13,7 @@ final class ThreeByThreeScrambler implements ScrambleGeneratorInterface
         'U' => 'D',
         'D' => 'U'
     );
-    private const APOSTROPHE = '\'';
-    private const DOUBLE = '2';
+    
 
 
     public function generate(): string

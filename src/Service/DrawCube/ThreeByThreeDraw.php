@@ -2,15 +2,14 @@
 
 namespace App\Service\DrawCube;
 
-use App\Service\Scramble\ScrambleGeneratorInterface;
+use App\Service\Cube\AbstractCubeDrawer;
 
-final class ThreeByThreeDraw implements CubeDrawerInterface
+final class ThreeByThreeDraw extends AbstractCubeDrawer
 {
-    //private ThreeCube $cu
-    
-    public function draw(ScrambleGeneratorInterface $scramble): string
+
+    function drawThreeByThree(string $scramble, array $cube)
     {
-        return "";     
+        return parent::draw($scramble, $cube, 3);
     }
-  
+
 }
