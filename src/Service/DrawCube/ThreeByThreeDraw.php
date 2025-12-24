@@ -7,9 +7,10 @@ use App\Service\Cube\AbstractCubeDrawer;
 final class ThreeByThreeDraw extends AbstractCubeDrawer
 {
 
-    function drawThreeByThree(string $scramble, array $cube)
+    function drawThreeByThree(string $scramble, array $cube) : array
     {
-        return parent::draw($scramble, $cube, 3);
+        parent::draw($scramble, $cube, 3);
+        return $cube;
     }
 
 }

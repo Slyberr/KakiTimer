@@ -95,7 +95,7 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
         $face[($newY * $n) + $newX] =  $value;
     }
 
-    private static function stickersChangeFace(array $cube, string $moveToDo, string $moveType, string $deep, int $n)
+    private function stickersChangeFace(array $cube, string $moveToDo, string $moveType, string $deep, int $n)
     {
 
         $cube2 = deep_copy($cube);
@@ -139,7 +139,7 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
             $faceToUpdate = $getSpecif[$indexFaceToUpdate % 4]["face"];
 
             //On affecte les valeurs dans sur la face de destination.
-            self::edgesToReaffect($faceToUpdate, $edgesToMove, $realIndexOfData, $typeofData, $n);
+            self::stickersToReaffect($cube[$faceToUpdate], $edgesToMove, $realIndexOfData, $typeofData, $n);
         }
     }
 
@@ -160,7 +160,7 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
         }
 
         $i = $deparure;
-        while ($i < $faceOfLeaveSticker) {
+        while ($i < count($faceOfLeaveSticker)) {
 
             array_push($edgesToMove, $faceOfLeaveSticker[$i]);
 
@@ -174,7 +174,7 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
         return $edgesToMove;
     }
 
-    private function edgesToReaffect(array $faceToUpdate, array $edgeToReaffect, int $dataIndex, string $typeofData, int $n)
+    private function stickersToReaffect(array $faceToUpdate, array $edgeToReaffect, int $dataIndex, string $typeofData, int $n)
     {
 
 
@@ -193,7 +193,7 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
         $i = $deparure;
         $numberEdgesAffected = 0;
 
-        while ($i < $faceToUpdate) {
+        while ($i < count($faceToUpdate)) {
 
             $faceToUpdate[$i] = $edgeToReaffect[$numberEdgesAffected];
             $numberEdgesAffected++;
