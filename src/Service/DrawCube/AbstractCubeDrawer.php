@@ -27,9 +27,11 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
                     $cube[$match[0]] = self::principalFaceTurn($face, self::REVERSE, $n);
                     $cube = self::stickersChangeFace($cube, $match[0], self::REVERSE, 0, $n);
                 } else if (str_contains($match, ScrambleGeneratorInterface::DOUBLE)) {
+
                     $cube[$match[0]] = self::principalFaceTurn($face, self::DOUBLE, $n);
                     $cube = self::stickersChangeFace($cube, $match[0], self::DOUBLE, 0, $n);
                 } else {
+
                     $cube[$match[0]] = self::principalFaceTurn($face, self::NORMAL, $n);
                     $cube = self::stickersChangeFace($cube, $match[0], self::NORMAL, 0, $n);
                 }
@@ -53,10 +55,10 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
                 for ($y = 0; $y < $n; $y++) {
                     for ($x = 0; $x < $n; $x++) {
                         //On calcul la nouvelle position du sticker selon le mouvement réalisé
-                        $newX = $n - 1 - $y;
-                        $newY = $x;
+                        $newX = $y;
+                        $newY = $n - 1 - $x;
 
-                        $face[($newY * $n) + $newX]  = $beforeTurnState[$x + $y];
+                        $face[($newY * $n) + $newX]  = $beforeTurnState[($y * $n)  + $x];
                     }
                 }
                 break;
@@ -69,7 +71,7 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
                         $newX = $n - 1 - $x;
                         $newY = $n - 1 - $y;
 
-                        $face[($newY * $n) + $newX]  = $beforeTurnState[$x + $y];
+                        $face[($newY * $n) + $newX]  = $beforeTurnState[($y * $n)  + $x];
                     }
                 }
                 break;
@@ -80,10 +82,10 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
 
                         //On calcul la nouvelle position du sticker selon le mouvement réalisé
 
-                        $newX = $y;
-                        $newY = $n - 1 - $x;
+                        $newX = $n - 1 - $y;
+                        $newY = $x;
 
-                        $face[($newY * $n) + $newX] = $beforeTurnState[$x + $y];
+                        $face[($newY * $n) + $newX] = $beforeTurnState[($y * $n)  + $x];
                     }
                 }
                 break;
@@ -98,7 +100,7 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
         //Récupération des instructions à réaliser pour ce mouvement.
         $getSpecif = self::FACENEIGHBORS[$moveToDo];
 
-        for ($i = 0; $i < count($getSpecif) - 1; $i++) {
+        for ($i = 0; $i < count($getSpecif) ; $i++) {
 
             //Recupération d'un tableau (face) concerné par le changement
             $faceOfLeavedStickers = $cube2[$getSpecif[$i]["face"]];
@@ -137,12 +139,12 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
             }
 
             //Le modulo en PHP n'apprécie pas les nombres négatifs..
-            if ($indexFaceToUpdate < 0) {
-                $indexFaceToUpdate = 4 - $indexFaceToUpdate;
+            if ($indexFaceToUpdate == -1) {
+                $indexFaceToUpdate = 3;
             }
-            $faceToUpdate = $getSpecif[$indexFaceToUpdate % 3]["face"];
-            $typeFaceToUpdate =  $getSpecif[$indexFaceToUpdate % 3]["type"];
-            $indexFaceToUpdate = $getSpecif[$indexFaceToUpdate % 3]["index"];
+            $faceToUpdate = $getSpecif[$indexFaceToUpdate % 4]["face"];
+            $typeFaceToUpdate =  $getSpecif[$indexFaceToUpdate % 4]["type"];
+            $indexFaceToUpdate = $getSpecif[$indexFaceToUpdate % 4]["index"];
 
             $realIndexFaceToUpdate = 0;
 
@@ -215,7 +217,7 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
 
             //On saute toute la ligne pour arriver à (x,$i + 1)
             if ($type == 'col') {
-                $i += ($n - 1);
+                $i += $n;
             } else {
                 $i++;
             }
