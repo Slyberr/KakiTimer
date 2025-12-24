@@ -15,7 +15,7 @@ interface CubeDrawerInterface
     //On représente les inversions des stickers avec un tableau alimentés par des mouvements possible lors d'un mélange. 
     // Lorsqu'un cube sera plus gros, la logique d'inversion sera la même.
 
-    //Attention ! NE PAS MODIFIER l'ordre des faces !  Il n'est pas choisi au hasard. Il permet de savoir ce que sur quelle face se trouve les nouveaux stickers.
+    //Attention ! NE PAS MODIFIER l'ordre des faces !  Il n'est pas choisi au hasard. Il permet de savoir  sur quelle face se trouvent les nouveaux stickers.
 
     //Exemple : avec un mouvement U, les pièces de la Face F vont en L. Un mouvement U' : F -> R. Un U2 : F-> B.
 

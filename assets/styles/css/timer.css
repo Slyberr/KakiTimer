@@ -12,13 +12,29 @@
   font-size: 30px;
 }
 
+.cube-scrambled {
+  display: flex;
+  max-width: 300px;
+  flex-direction: column;
+  background-color: black;
+}
+.cube-scrambled :last-child {
+  margin-left: 50px;
+}
+
 .face {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr;
-  max-width: 50px;
-  margin: 20px;
-  gap: 0;
+  width: 0px;
+  margin: 10px;
+  gap: 1px;
+}
+
+.the-line-on-patron {
+  display: flex;
+  flex-direction: row;
+  gap: 40px;
 }
 
 /*# sourceMappingURL=timer.css.map */

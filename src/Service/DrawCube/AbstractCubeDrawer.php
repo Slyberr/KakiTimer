@@ -13,7 +13,6 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
     //Function pour dessiner le patron d'un cube
     public function drawScramble(string $scramble, array $cube, int $n): array
     {
-
         $matches = [];
         $occur = preg_match_all('/[^\s]+/', $scramble, $matches);
 
@@ -53,9 +52,6 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
 
                 for ($y = 0; $y < $n; $y++) {
                     for ($x = 0; $x < $n; $x++) {
-
-                        //On calcul la nouvelle position du sticker selon le mouvement réalisé
-
                         $newX = $n - 1 - $y;
                         $newY = $x;
 
@@ -68,7 +64,6 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
 
                 for ($y = 0; $y < $n; $y++) {
                     for ($x = 0; $x < $n; $x++) {
-                        //On calcul la nouvelle position du sticker selon le mouvement réalisé
                         $newX = $y;
                         $newY = $n - 1 - $x;
 
@@ -80,8 +75,6 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
 
                 for ($y = 0; $y < $n; $y++) {
                     for ($x = 0; $x < $n; $x++) {
-                        //On calcul la nouvelle position du sticker selon le mouvement réalisé
-
                         $newX = $n - 1 - $x;
                         $newY = $n - 1 - $y;
 
@@ -96,6 +89,9 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
     //Permutation des stickers des faces adjacentes.
     private function permuteStickersAdj(array $cube, string $moveToDo, string $moveType, string $deep, int $n): array
     {
+
+        //On garde l'état initial pour calculer les pièces une à une.
+        //Même pour un 7x7, cela reste efficace en terme de performance.
         $cube2 = deep_copy($cube);
 
         //Récupération des spécificités du mouvement à réaliser.

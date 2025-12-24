@@ -18,9 +18,18 @@
     
 </div>
 
-<div>{% for face in cubeScrambled %}
-        <div class="face"> 
+<div class="cube-scrambled">{% for face in cubeScrambled %}
+
+        
+        {% if loop.index == 2%}
+            <div class="the-line-on-patron"> 
+        {% endif %}
+                   
+        <div class="face">
+
             {% for j in face %} 
+
+             
                 {% set color = j %}
                 {% if j == 'W'%}
                     <span style='display:inline-block;width:15px;height:15px;background-color:white;border:1px black solid'></span>
@@ -36,9 +45,10 @@
                     <span style='display:inline-block;width:15px;height:15px;background-color:yellow;border:1px black solid'></span>
                 {% endif %}                    
             {% endfor %}
-            <div>{{loop.index}}</div>
         </div>
-        
+        {% if loop.index == 5 %}
+            </div>
+        {% endif %}
         {% endfor %}
     </div>
 
