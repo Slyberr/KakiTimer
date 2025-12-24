@@ -20,20 +20,24 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
             foreach ($matches[0] as $match) {
 
                 $face = $cube[$match[0]];
-                if (str_contains(ScrambleGeneratorInterface::APOSTROPHE,$match)) {
-                    self::principalFaceTurn($face,self::REVERSE,$n);
-                } else if (str_contains(ScrambleGeneratorInterface::DOUBLE,$match)) {
-                    self::principalFaceTurn($face,self::DOUBLE,$n);
+                if (str_contains(ScrambleGeneratorInterface::APOSTROPHE, $match)) {
+                    self::principalFaceTurn($face, self::REVERSE, $n);
+                    self::stickersChangeFace($cube,$match[0],self::REVERSE,0,$n);
+                } else if (str_contains(ScrambleGeneratorInterface::DOUBLE, $match)) {
+                    self::principalFaceTurn($face, self::DOUBLE, $n);
+                    self::stickersChangeFace($cube,$match[0],self::DOUBLE,0,$n);
                 } else {
-                    self::principalFaceTurn($face,null,$n);
+                    self::principalFaceTurn($face, self::NORMAL, $n);
+                    self::stickersChangeFace($cube,$match[0],self::NORMAL,0,$n);
                 }
+
                 
             }
         }
     }
 
     //Permutation des stickers associés sur la face pricipale 
-    private static function principalFaceTurn(array $face, ?string $moveType, int $n)
+    private static function principalFaceTurn(array $face, string $moveType, int $n)
     {
 
         //On garde l'état initial pour calculer les pièces une à une.
@@ -50,6 +54,7 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
                         $newY = $x;
 
                         self::affectNewPos($beforeTurnState, $face, $x, $y, $newX, $newY, $n);
+                        
                     }
                 }
             case self::DOUBLE:
@@ -77,6 +82,7 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
                         self::affectNewPos($beforeTurnState, $face, $x, $y, $newX, $newY, $n);
                     }
                 }
+
         }
     }
 
@@ -89,14 +95,15 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
         $face[($newY * $n) + $newX] =  $value;
     }
 
-    private static function stickersChangeFace(array $cube, string $moveToDo, string $moveType,string $deep, int $n) {
+    private static function stickersChangeFace(array $cube, string $moveToDo, string $moveType, string $deep, int $n)
+    {
 
         $cube2 = deep_copy($cube);
 
         //Récupération des instructions à réaliser pour ce mouvement.
-        $getSpecif = self::FACENEIGHBORS[$moveToDo[0]];
+        $getSpecif = self::FACENEIGHBORS[$moveToDo];
 
-        for($i = 0;$i < count($getSpecif); $i++) {
+        for ($i = 0; $i < count($getSpecif); $i++) {
 
             //Recupération d'un tableau (face) concerné par le changement
             $faceToChange = $cube2[$getSpecif[$i]["face"]];
@@ -107,16 +114,96 @@ abstract class AbstractCubeDrawer implements CubeDrawerInterface
             if ($indexOfData != '0') {
                 $realIndexOfData = $n - 1;
             }
-              
+
             //Si oui le tableau à renseigner dans la nouvelle face doit être inversé.
-            $isReverse =  array_search($moveType, $getSpecif[$i]["reverse"]);
-            
+            $isReverse =  array_search($moveType, $getSpecif[$i]["inverse"]);
+
+            //création du tableau d'arrête à move
+            $edgesToMove = self::stickersToMove($faceToChange, $realIndexOfData, $typeofData, $n);
+
+
+
             if ($isReverse) {
-                
+                $edgesToMove = array_reverse($edgesToMove);
             }
-            
+            $indexFaceToUpdate = 0;
+
+            //On recherche nom de la face suivante
+            if ($moveType = self::DOUBLE) {
+                $indexFaceToUpdate = ($i + 2);
+            } else if ($moveType = self::REVERSE) {
+                $indexFaceToUpdate = ($i - 1);
+            } else {
+                $indexFaceToUpdate = ($i + 1);
+            }
+            $faceToUpdate = $getSpecif[$indexFaceToUpdate % 4]["face"];
+
+            //On affecte les valeurs dans sur la face de destination.
+            self::edgesToReaffect($faceToUpdate, $edgesToMove, $realIndexOfData, $typeofData, $n);
+        }
+    }
+
+    private function stickersToMove(array $faceOfLeaveSticker, int $dataIndex, string $typeofData, int $n): array
+    {
+
+        $edgesToMove = [];
+        $deparure = 0;
+
+        //Si on est dans une dernière colonne, on se place en (n-1,0);
+        if ($typeofData = 'col' && $dataIndex = $n - 1) {
+            $deparure = $dataIndex;
+
+            //Si on est dans une dernière ligne, on se plade en (0,n-1);
+        }
+        if ($typeofData = 'row' && $dataIndex = $n - 1) {
+            $deparure = $n * ($n - 1);
         }
 
+        $i = $deparure;
+        while ($i < $faceOfLeaveSticker) {
 
+            array_push($edgesToMove, $faceOfLeaveSticker[$i]);
+
+            //On saute toute la ligne pour arriver à (x,$i + 1)
+            if ($typeofData = 'col') {
+                $i += ($n - 1);
+            } else {
+                $i++;
+            }
+        }
+        return $edgesToMove;
+    }
+
+    private function edgesToReaffect(array $faceToUpdate, array $edgeToReaffect, int $dataIndex, string $typeofData, int $n)
+    {
+
+
+        $deparure = 0;
+
+        //Si on est dans une dernière colonne, on se place en (n-1,0);
+        if ($typeofData = 'col' && $dataIndex = $n - 1) {
+            $deparure = $dataIndex;
+
+            //Si on est dans une dernière ligne, on se plade en (0,n-1);
+        }
+        if ($typeofData = 'row' && $dataIndex = $n - 1) {
+            $deparure = $n * ($n - 1);
+        }
+
+        $i = $deparure;
+        $numberEdgesAffected = 0;
+
+        while ($i < $faceToUpdate) {
+
+            $faceToUpdate[$i] = $edgeToReaffect[$numberEdgesAffected];
+            $numberEdgesAffected++;
+
+            //On saute toute la ligne pour arriver à (x,$i + 1)
+            if ($typeofData = 'col') {
+                $i += ($n - 1);
+            } else {
+                $i++;
+            }
+        }
     }
 }
