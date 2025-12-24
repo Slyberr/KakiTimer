@@ -61,5 +61,5 @@ interface CubeDrawerInterface
     ];
 
 
-    public function draw(string $scramble, array $cube, int $n);
+    public function drawScramble(string $scramble, array $cube, int $n);
 }

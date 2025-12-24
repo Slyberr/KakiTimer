@@ -18,13 +18,15 @@ final class TimerController extends AbstractController
     public function index(ScrambleGeneratorInterface $scramble,ThreeByThreeDraw $cubeDraw,ThreeByThreeCube $cube): Response
     {
         $date  = time();
-        dd($cubeDraw->drawThreeByThree($scramble->generate(),$cube->makeCube()));
-
+        $scrambleGen = $scramble->generate();
+        $cubeScrambled = $cubeDraw->drawThreeByThree($scrambleGen,$cube->makeCube());
+        //dd($cubeScrambled);
         return $this->render('timer/index.html.twig', [
             'controller_name' => 'TimerController',
              'date_actuel' => $date,
-             'scramble' => $scramble->generate()
-             
+             'scramble' => $scrambleGen,
+             'cubeScrambled' => $cubeScrambled
+
         ]);
     }
 

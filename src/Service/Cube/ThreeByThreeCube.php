@@ -11,13 +11,11 @@ final class ThreeByThreeCube extends AbstractCube
     {
         $cube = [];
 
+        foreach(CubeInterface::INITIAL_STATE as $key => $value) {
 
-        for ($i = 0; $i < count(CubeInterface::COLORS) ; $i++) {
-
-            $face = parent::createFace(CubeInterface::COLORS[$i],3);
-            $cube[ScrambleGeneratorInterface::POSSIBLE_MOVES[$i]] = $face;
+            $face = parent::createFace($value,3);
+            $cube[$key] = $face;
         }
-
         return $cube;
     }
 

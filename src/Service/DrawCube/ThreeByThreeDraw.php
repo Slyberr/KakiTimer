@@ -9,7 +9,8 @@ final class ThreeByThreeDraw extends AbstractCubeDrawer
 
     function drawThreeByThree(string $scramble, array $cube) : array
     {
-        parent::draw($scramble, $cube, 3);
+        $cube = parent::drawScramble($scramble, $cube, 3);
+
         return $cube;
     }
 

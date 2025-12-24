@@ -2,6 +2,8 @@
 
 namespace App\Service\Scramble;
 
+use App\Service\Cube\CubeInterface;
+
 final class ThreeByThreeScrambler implements ScrambleGeneratorInterface
 {
 
@@ -22,14 +24,16 @@ final class ThreeByThreeScrambler implements ScrambleGeneratorInterface
         $scramble = '';
         $movestoDo = rand(21, 23);
         $scrambleToBuild = array();
+        $possible_moves = self::getPossibleMoves();
 
         for ($i = 0; $i <= $movestoDo; $i++) {
 
             $isDouble = rand(0, 1);
+            
 
             do {
-                $key = array_rand(self::POSSIBLE_MOVES);
-                $potentialMove = self::POSSIBLE_MOVES[$key];
+                $randomMove = rand(0,5);
+                $potentialMove = $possible_moves[$randomMove];
             } while (! self::mouvIsOk($scrambleToBuild, $potentialMove, $i));
 
             if ($isDouble == 0) {
@@ -45,6 +49,7 @@ final class ThreeByThreeScrambler implements ScrambleGeneratorInterface
             $scramble = $scramble . ' ' . $potentialMove;
             array_push($scrambleToBuild, $potentialMove);
         }
+       
         return $scramble;
     }
 
@@ -52,6 +57,7 @@ final class ThreeByThreeScrambler implements ScrambleGeneratorInterface
 
     private static function mouvIsOk(array $scrambleToBuild, string $moveToAdd, int $actualRank): bool
     {
+         
         //Déjà un mouvement dans la séquence ?
         if (count($scrambleToBuild) == 0) {
             return true;
@@ -69,6 +75,7 @@ final class ThreeByThreeScrambler implements ScrambleGeneratorInterface
     //Cette fonction avancée dépend fortement du contexte du mélange (Exemple : L2 R L. Le dernier mouvement n'est pas possible à réaliser.)
     private static function NotAUselessMove(array $scrambleToBuild, string $moveToAdd, int $actualRank): bool
     {
+
         if (count($scrambleToBuild) <= 2) {
             return true;
         }
@@ -78,11 +85,15 @@ final class ThreeByThreeScrambler implements ScrambleGeneratorInterface
         //Si le dernier mouvement enregistré est un mouvement opposé et que le mouvement encore antérieur est identique au mouvement à rentrer.
         //On prend le premier char de la string pour ne pas avoir le facteur double move (2)
 
-        //var_dump($scrambleToBuild[$actualRank - 1][0]);
         if ($lastMoveFace == $myOppMove  && $beforeLastMoveFace == $moveToAdd) {
             return false;
         }
 
         return true;
+    }
+
+    public function getPossibleMoves(): array
+    {
+        return array_keys(CubeInterface::INITIAL_STATE);
     }
 }

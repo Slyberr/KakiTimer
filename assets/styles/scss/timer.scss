@@ -11,3 +11,13 @@
 .timer {
     font-size: 30px;
 }
+
+.face {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows:  1fr 1fr 1fr;
+    max-width: 50px;
+    margin:20px;
+    gap:0;
+
+}
