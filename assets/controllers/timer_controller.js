@@ -1,4 +1,8 @@
+
 import { Controller } from '@hotwired/stimulus';
+import { randomScrambleForEvent } from "https://cdn.cubing.net/v0/js/cubing/scramble";
+
+
 const NOT_READY = "NOT_READY";
 const READY = "READY";
 const RUNNING = "RUNNING";
@@ -7,11 +11,10 @@ const MIN = 60000;
 
 export default class extends Controller {
 
-    static targets = ["timer","scramble","solves","averages"];
+    static targets = ["timer","scramble","solves","averages","listofevents"];
     static values = { url: String};
 
     connect() {
-
         this.timerRunning = false;
         //lors du chargement de la page, le timer est prêt.
         this.actualState = READY;
@@ -23,7 +26,6 @@ export default class extends Controller {
         window.addEventListener('keydown', (event) => {
             this.keydown(event);
         })
-        console.log(this.urlValue);
     }
 
     keyup(event) {
@@ -116,11 +118,19 @@ export default class extends Controller {
 
     async refreshScramble() {
         try {
-            const response = await fetch(this.urlValue);
-            const data = await response.json(); {
-        }
+            let newScramble = "";
+            if (this.listofeventsTarget.value == "3x3") {
 
-            this.scrambleTarget.innerText = data.newScramble;
+                const response = await fetch(this.urlValue);
+                const data = await response.json();
+                newScramble = data.newScramble;
+            }else {
+                const result = await randomScrambleForEvent(this.listofeventsTarget.value);
+                newScramble = result.toString();
+                
+            }
+            this.scrambleTarget.innerText = newScramble;
+            
         }catch (error) {
             this.scrambleTarget.innerText = "Error Generating scramble."
         }

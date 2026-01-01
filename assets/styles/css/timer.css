@@ -18,9 +18,6 @@
   flex-direction: column;
   background-color: black;
 }
-.cube-scrambled :last-child {
-  margin-left: 50px;
-}
 
 .face {
   display: grid;

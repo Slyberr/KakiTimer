@@ -2,7 +2,7 @@
 
 namespace App\Service\Scramble;
 
-use App\Service\Cube\CubeInterface;
+use App\Model\Cube\CubeInterface;
 
 final class ThreeByThreeScrambler implements ScrambleGeneratorInterface
 {
@@ -22,31 +22,31 @@ final class ThreeByThreeScrambler implements ScrambleGeneratorInterface
     {
 
         $scramble = '';
-        $movestoDo = rand(21, 23);
-        $scrambleToBuild = array();
+        $movestoDo = rand(20, 22);
+        $scrambleToBuild = [];
         $possible_moves = self::getPossibleMoves();
 
         for ($i = 0; $i <= $movestoDo; $i++) {
 
-            $isDouble = rand(0, 1);
+            //de 1 à 3 : 1 = NORMAL, 2 = REVERSE , 3 = DOUBLE;
+            $randTypeMove = rand(1, 3);
             
-
             do {
                 $randomMove = rand(0,5);
                 $potentialMove = $possible_moves[$randomMove];
-            } while (! self::mouvIsOk($scrambleToBuild, $potentialMove, $i));
+            } while (!self::mouvIsOk($scrambleToBuild, $potentialMove, $i));
 
-            if ($isDouble == 0) {
-
-                $isApostrophed = rand(0, 1);
-                if ($isApostrophed == 1) {
-                    $potentialMove = $potentialMove . self::APOSTROPHE;
-                }
+            if ($randTypeMove == 2) {
+                 $potentialMove .= self::APOSTROPHE;
+                
+            } else if ($randTypeMove == 3) {
+                
+                $potentialMove .= self::DOUBLE;
             } else {
+              //Ne rien faire.
+            };
 
-                $potentialMove = $potentialMove . self::DOUBLE;
-            }
-            $scramble = $scramble . ' ' . $potentialMove;
+            $scramble .= ' ' . $potentialMove;
             array_push($scrambleToBuild, $potentialMove);
         }
        
@@ -79,6 +79,7 @@ final class ThreeByThreeScrambler implements ScrambleGeneratorInterface
         if (count($scrambleToBuild) <= 2) {
             return true;
         }
+
         $myOppMove = self::OPPOSITE_MOVES[$moveToAdd];
         $lastMoveFace = $scrambleToBuild[$actualRank - 1][0];
         $beforeLastMoveFace = $scrambleToBuild[$actualRank - 2][0];

@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\Service\Cube\ThreeByThreeCube;
-use App\Service\DrawCube\ThreeByThreeDraw;
+use App\Model\Cube\Cube;
+use App\Service\EventDrawer\CubeDrawerInterface;
 use App\Service\Scramble\ScrambleGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -15,17 +15,17 @@ final class TimerController extends AbstractController
 {
     //Arriver sur la page du timer
     #[Route('/timer', methods:['GET'], name: 'app_timer')]
-    public function index(ScrambleGeneratorInterface $scramble,ThreeByThreeDraw $cubeDraw,ThreeByThreeCube $cube): Response
+    public function index(ScrambleGeneratorInterface $scramble, CubeDrawerInterface $cubeDraw): Response
     {
         $date  = time();
         $scrambleGen = $scramble->generate();
-        $cubeScrambled = $cubeDraw->drawThreeByThree($scrambleGen,$cube->makeCube());
+        $cubeScrambled = $cubeDraw->drawScramble($scrambleGen,new Cube(3));
         //dd($cubeScrambled);
         return $this->render('timer/index.html.twig', [
             'controller_name' => 'TimerController',
              'date_actuel' => $date,
              'scramble' => $scrambleGen,
-             'cubeScrambled' => $cubeScrambled
+             'cubeScrambled' => $cubeScrambled->getCube()
 
         ]);
     }
