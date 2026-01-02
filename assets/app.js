@@ -1,12 +1,7 @@
-import './stimulus_bootstrap.js';
-/*
- * Welcome to your app's main JavaScript file!
- *
- * This file will be included onto the page via the importmap() Twig function,
- * which should already be in your base.html.twig.
- */
-import './styles/css/app.css';
-import './styles/css/timer.css';
-import './styles/css/solve.css';
-
-console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');
+// JS
+import './stimulus_bootstrap';
+import './controllers';
+// CSS
+import './styles/app.scss';
+import './styles/solve.scss';
+import './styles/timer.scss';

@@ -1,7 +1,6 @@
 
 import { Controller } from '@hotwired/stimulus';
-import { randomScrambleForEvent } from "https://cdn.cubing.net/v0/js/cubing/scramble";
-
+import {randomScrambleForEvent} from 'cubing/scramble';
 
 const NOT_READY = "NOT_READY";
 const READY = "READY";
@@ -119,7 +118,7 @@ export default class extends Controller {
     async refreshScramble() {
         try {
             let newScramble = "";
-            if (this.listofeventsTarget.value == "3x3") {
+            if (this.listofeventsTarget.value == "333") {
 
                 const response = await fetch(this.urlValue);
                 const data = await response.json();
