@@ -49,9 +49,11 @@ final class TimerController extends AbstractController
         $n = $request->query->get('event');
         $scramble = $request->query->get('scramble');
         
-        $newDraw = $draw->drawScramble($scramble,new Cube($n[0]));
         
-        return new JsonResponse(['cubeScrambled' => $newDraw->getCube()]);   
+        $cubeScrambled = $draw->drawScramble($scramble,new Cube($n[0]));
+
+
+        return new JsonResponse(['cubeScrambled' => $cubeScrambled->getCube()]);   
     }
 
 }

@@ -93,10 +93,19 @@ export default class extends Controller {
 
         const newScramble = await this.refreshScramble();
         const draw = await this.drawScramble(newScramble);
-
+        let gridSectionToDo = "";
         this.scrambleTarget.innerText = newScramble;
 
-        document.styleSheets.
+
+        //Selon la dimension "n", on va créer une grid NxN en fonction du cube à afficher.
+        let i = 0;
+        while (i < this.listofeventsTarget.value[0]) {
+            gridSectionToDo+= "1fr ";
+            i++
+        }
+        
+        document.documentElement.style.setProperty('--face-columns',gridSectionToDo);
+        document.documentElement.style.setProperty('--face-rows',gridSectionToDo);
         document.getElementById('cube-drawed').innerHTML = draw;
        
     }

@@ -20,7 +20,8 @@
 
 #cube-drawed {
     display: flex;
-    max-width: 300px;
+    max-width: 500px;
+    gap:50px;
     flex-direction: column;
     background-color: black;
    // :last-child {
@@ -44,5 +45,5 @@
 .the-line-on-patron {
     display: flex;
     flex-direction: row;
-    gap: 40px;
+    gap: 100px;
 }
