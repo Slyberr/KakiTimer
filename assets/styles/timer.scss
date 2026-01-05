@@ -1,3 +1,9 @@
+:root{
+    //selon le type de cube à afficher cela sera changé côté JS.
+    --face-columns : 1fr 1fr 1fr;
+    --face-rows : 1fr 1fr 1fr;
+}
+
 .box-timer-solves{
     display: flex;
     
@@ -12,7 +18,7 @@
     font-size: 30px;
 }
 
-.cube-scrambled {
+#cube-drawed {
     display: flex;
     max-width: 300px;
     flex-direction: column;
@@ -27,8 +33,8 @@
 
 .face {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows:  1fr 1fr 1fr;
+    grid-template-columns:var(--face-columns);
+    grid-template-rows:  var(var(--face-rows));
     width: 0px;
     margin:10px;
     gap:1px

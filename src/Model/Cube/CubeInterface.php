@@ -7,7 +7,7 @@ interface CubeInterface
 {
 
    // L'état inital d'un cube Face => Couleur.
-   const INITIAL_STATE = ['U' => 'W', 'L' => 'O', 'F' => 'G', 'R' => 'R', 'B' => 'B', 'D' => 'Y'];
+   const INITIAL_STATE = ['U' => 'white', 'L' => 'orange', 'F' => 'green', 'R' => 'red', 'B' => 'blue', 'D' => 'yellow'];
 
 
    /**

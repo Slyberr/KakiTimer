@@ -7,38 +7,51 @@ use App\Service\EventDrawer\CubeDrawerInterface;
 use App\Service\Scramble\ScrambleGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 //La classe pour Gérer le timer et sa logique.
 final class TimerController extends AbstractController
 {
-    //Arriver sur la page du timer
+    /**
+     * Route GET lorsque la page timer.twig.html est chargée
+     * @return Response
+     */
     #[Route('/timer', methods:['GET'], name: 'app_timer')]
-    public function index(ScrambleGeneratorInterface $scramble, CubeDrawerInterface $cubeDraw): Response
-    {
-        $date  = time();
-        $scrambleGen = $scramble->generate();
-        $cubeScrambled = $cubeDraw->drawScramble($scrambleGen,new Cube(3));
-        //dd($cubeScrambled);
+    public function index(): Response
+    { 
         return $this->render('timer/index.html.twig', [
             'controller_name' => 'TimerController',
-             'date_actuel' => $date,
-             'scramble' => $scrambleGen,
-             'cubeScrambled' => $cubeScrambled->getCube()
+             'cubeScrambled' => null,
 
         ]);
     }
 
-    //Générer un nouveau scramble lors de le chornomètre est arrêté.
-    #[Route('/timer/scramble/generate', methods:['GET'], name: 'app_timer_scramble_generate')]
-    public function generateScramble(ScrambleGeneratorInterface $scramble, ): JsonResponse
+    //Générer un nouveau scramble.
+    #[Route('/timer/scramble/generate', methods:['GET'], name: 'app_timer_generate_scramble')]
+    public function generateScramble(Request $request, ScrambleGeneratorInterface $scramble): JsonResponse
     {
-        $newScramble = $scramble->generate();
-        
+
+        $event = $request->query->get('event');
+        if (str_contains($event, "333") ) {
+            $newScramble = $scramble->generate();
+        }
         
         return new JsonResponse(['newScramble' => $newScramble]);   
     }
 
+    //Dessiner le scramble.
+    #[Route('/timer/scramble/draw', methods:['GET'], name: 'app_timer_draw_scramble')]
+    public function drawScramble(Request $request, CubeDrawerInterface $draw): JsonResponse
+    {
+        
+        $n = $request->query->get('event');
+        $scramble = $request->query->get('scramble');
+        
+        $newDraw = $draw->drawScramble($scramble,new Cube($n[0]));
+        
+        return new JsonResponse(['cubeScrambled' => $newDraw->getCube()]);   
+    }
 
 }

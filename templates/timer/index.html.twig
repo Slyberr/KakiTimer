@@ -5,62 +5,28 @@
 
 
 
-
-<div class="box-timer-solves" data-controller="timer" data-timer-url-value="{{ path('app_timer_scramble_generate') }}">
-    <div class="choose-event" >
-        <select name="events" id="events-list" data-timer-target="listofevents">
-            <option value="">--Choisir l'épreuve</option>
-            <option value="222">2x2</option>
-            <option value="333">3x3</option>
-            <option value="444">4x4</option>
-            <option value="555">5x5</option>
-            <option value="pyram">Pyraminx</option>
-            <option value="sq1">Square-1</option>
-        </select>
+<div data-controller="timer" data-timer-url-value="{{ path('app_timer_generate_scramble')}}">
+    <div class="box-timer-solves">
+        <div class="choose-event" >
+            <select name="events" id="events-list" data-timer-target="listofevents" data-action="change->#refreshAndDrawScramble">
+                <option value="222">2x2</option>
+                <option selected="true" value="333">3x3</option>
+                <option value="444">4x4</option>
+                <option value="555">5x5</option>
+                <option value="pyram">Pyraminx</option>
+                <option value="sq1">Square-1</option>
+            </select>
+        </div>
+        <div class="box-timer" >
+            <h2 id="scramble" data-timer-target="scramble">Aucun event n'a été choisi.</h2>
+            <div id="timer"  data-timer-target="timer">0.00</div>
+        </div>
     </div>
-    <div class="box-timer" >
-        <h2 id="scramble" data-timer-target="scramble">{{ scramble }}</h2>
-        <div id="timer"  data-timer-target="timer">0.00</div>
-    </div>
-    
     {{ include('solve/index.html.twig') }}
-
     
 </div>
 
-<div class="cube-scrambled">{% for face in cubeScrambled %}
-
-        
-        {% if loop.index == 2%}
-            <div class="the-line-on-patron"> 
-        {% endif %}
-                   
-        <div class="face">
-
-            {% for j in face %} 
-
-             
-                {% set color = j %}
-                {% if j == 'W'%}
-                    <span style='display:inline-block;width:15px;height:15px;background-color:white;border:1px black solid'></span>
-                {% elseif j == 'G'%}
-                    <span style='display:inline-block;width:15px;height:15px;background-color:green;border:1px black solid'></span>
-                {% elseif j == 'R'%}
-                    <span style='display:inline-block;width:15px;height:15px;background-color:red;border:1px black solid'></span>
-                {% elseif j == 'O'%}
-                    <span style='display:inline-block;width:15px;height:15px;background-color:orange;border:1px black solid'></span>
-                {% elseif j == 'B'%}
-                    <span style='display:inline-block;width:15px;height:15px;background-color:blue;border:1px black solid'></span>
-                {% elseif j == 'Y'%}
-                    <span style='display:inline-block;width:15px;height:15px;background-color:yellow;border:1px black solid'></span>
-                {% endif %}                    
-            {% endfor %}
-        </div>
-        {% if loop.index == 5 %}
-            </div>
-        {% endif %}
-        {% endfor %}
-    </div>
+<div id="cube-drawed"></div>
 
 {% endblock %}
 
