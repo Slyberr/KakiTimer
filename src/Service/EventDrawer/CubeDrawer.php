@@ -32,7 +32,6 @@ final class CubeDrawer implements CubeDrawerInterface
                     } else {
                         $deep = 2;
                     }
-
                 }
 
                 if (str_contains($match, ScrambleGeneratorInterface::APOSTROPHE)) {
@@ -40,7 +39,7 @@ final class CubeDrawer implements CubeDrawerInterface
                 }
 
                 //On ne regarde pas le premier char qui peut être un nombre (3Lw2 par exemple).
-                if (str_contains(substr($match,1), ScrambleGeneratorInterface::DOUBLE)) {
+                if (str_contains(substr($match, 1), ScrambleGeneratorInterface::DOUBLE)) {
                     $moveType = self::DOUBLE;
                 }
 
@@ -57,12 +56,12 @@ final class CubeDrawer implements CubeDrawerInterface
 
 
     /**
-    * fonction utilitaire pour gérer la permutation des stickers sur la face principale.
-    * @param array $face la face à modifier.
-    * @param string $moveType le type de mouvement à réaliser.
-    * @param int $n la taille du cube.
-    * @return array la même face modifiée.
-    */
+     * fonction utilitaire pour gérer la permutation des stickers sur la face principale.
+     * @param array $face la face à modifier.
+     * @param string $moveType le type de mouvement à réaliser.
+     * @param int $n la taille du cube.
+     * @return array la même face modifiée.
+     */
     private static function permuteStickersOnFace(array $face, string $moveType, int $n): array
     {
 
@@ -110,14 +109,14 @@ final class CubeDrawer implements CubeDrawerInterface
     }
 
     /**
-    * fonction utilitaire pour gérer la permutation des stickers sur les faces adjacentes au mouvement.
-    * @param array $cube pour gérer les faces adjacentes du cube.
-    * @param string $moveToDo le mouvement à réaliser.
-    * @param string $moveType S'il s'agit d'un mouvement amélioré Inverse ou double.
-    * @param int $deep la profondeur du mouvement à réaliser. Ex: Lw' -> deep = 2.
-    * @param int $n la taille du cube.
-    * @return array le même cube modifié. 
-    */
+     * fonction utilitaire pour gérer la permutation des stickers sur les faces adjacentes au mouvement.
+     * @param array $cube pour gérer les faces adjacentes du cube.
+     * @param string $moveToDo le mouvement à réaliser.
+     * @param string $moveType S'il s'agit d'un mouvement amélioré Inverse ou double.
+     * @param int $deep la profondeur du mouvement à réaliser. Ex: Lw' -> deep = 2.
+     * @param int $n la taille du cube.
+     * @return array le même cube modifié. 
+     */
     private function permuteStickersAdj(array $cube, string $moveToDo, string $moveType, int $deep, int $n): array
     {
 
@@ -142,25 +141,17 @@ final class CubeDrawer implements CubeDrawerInterface
             if ($index != '0') {
                 $index = $n - 1;
             }
-            
+
             //Création de la liste des stickers à permuter.
-            for ($j = 0; $j < $deep; $j++) {
+            $stickersToMove = [];
 
-                //on change de tranche/pronfondeur à chaque itération.
-                if ($index == 0) {
-                    self::stickersToMove($faceOfLeavedStickers, $index + $j, $type, $n);
-                } else {
-                    self::stickersToMove($faceOfLeavedStickers, $index - $j, $type, $n);
-                }
-            }
-            $stickersToMove = self::stickersToMove($faceOfLeavedStickers, $index, $type, $n);
-
-            //Triple opérateur voir :
-            //https://www.php.net/manual/fr/function.array-search.php -> User Contributed Notes ->  cue at openxbox dot com
-            if ($isReverse !== false) {
-                $stickersToMove = array_reverse($stickersToMove);
+            if ($index == 0) {
+                $stickersToMove =  self::stickersToTake($faceOfLeavedStickers, $index, $deep, $isReverse, $type, $n);
+            } else {
+                $stickersToMove  = self::stickersToTake($faceOfLeavedStickers, $index, $deep, $isReverse, $type, $n);
             }
 
+          
             $indexFaceToUpdate = "";
 
             //On recherche la face de destination des stickers de la face courante.
@@ -187,7 +178,7 @@ final class CubeDrawer implements CubeDrawerInterface
             }
 
             //On affecte les valeurs dans sur la face de destination.
-            $cube[$faceToUpdate] = self::stickersToReaffect($cube2[$faceToUpdate], $stickersToMove, $indexFaceToUpdate, $typeFaceToUpdate, $n);
+            $cube[$faceToUpdate] = self::stickersToUpdate($cube2[$faceToUpdate], $stickersToMove, $indexFaceToUpdate, $deep, $typeFaceToUpdate, $n);
         }
 
         return $cube;
@@ -196,17 +187,17 @@ final class CubeDrawer implements CubeDrawerInterface
     /**
      * Récupération des stickers à permuter.
      */
-    private function stickersToMove(array $face, int $index, string $type, int $n): array
+    private function stickersToTake(array $face, int $index, int $deep, bool $isReverse, string $type, int $n): array
     {
-        return self::stickersToTakeOrUpdate($face, null, $index, $type, $n);
+        return self::stickersToTakeOrUpdate($face, null, $index, $deep, $isReverse, $type, $n);
     }
 
     /**
      * Réaffectation des stickers sur la face destination.
      */
-    private function stickersToReaffect(array $face, array $stickersToReaffect, int $index, string $type, int $n): array
+    private function stickersToUpdate(array $face, array $stickersToReaffect, int $index, int $deep, string $type, int $n): array
     {
-        return self::stickersToTakeOrUpdate($face, $stickersToReaffect, $index, $type, $n);
+        return self::stickersToTakeOrUpdate($face, $stickersToReaffect, $index, $deep, false, $type, $n);
     }
 
     /**
@@ -215,11 +206,13 @@ final class CubeDrawer implements CubeDrawerInterface
      * @param array $face la face concernée à update
      * @param ?array $listOfStickers, s'il s'agit d'une affectation de stickers, null sinon.
      * @param int $index le départ du premier sticker à modifier.
+     * @param int $deep la profondeur du mouvement à faire.
+     * @param bool $isReverse dans le cas d'une récupération, savoir si les stickers doivent être inversés sur chaque ligne/colonne de destination.
      * @param string $type s'il s'agit d'une modification d'une colonne ou d'une ligne de la face.
      * @param string $n la taille du cube.
      * @return array la face modifié à retourner.
-    */
-    private function stickersToTakeOrUpdate(array $face, ?array $listOfStickers, int $index, string $type, int $n): array
+     */
+    private function stickersToTakeOrUpdate(array $face, ?array $listOfStickers, int $index, int $deep, bool $isReverse, string $type, int $n): array
     {
         //Si $listOfStickers est null, on récupère les stickers, sinon on les réaffecte.
         $stickers = [];
@@ -228,7 +221,6 @@ final class CubeDrawer implements CubeDrawerInterface
         }
 
         $deparure = 0;
-
         //Si on est dans une dernière colonne, on se place en (n-1,0);
         if ($type == 'col' && $index == $n - 1) {
             $deparure = $index;
@@ -241,16 +233,53 @@ final class CubeDrawer implements CubeDrawerInterface
 
         $i = $deparure;
         $acc = 0;
-        while ($acc < $n) {
+        //N'est utilisé que lorsqu'on va récupérer les stickers.
+        $currentRowOrCol = [];
+        //On boucle sur N * les couches à faire + 1 car on veut réaliser une dernière action avant de stopper la boucle.
+        while ($acc < ($n * $deep) + 1) {
+
+            //Traitement à réaliser lorsque la colonne/ligne est terminée.
+            if ($acc !== 0 && $acc % $n == 0) {
+                
+                //On veut push la ligne/colonne et l'inverser si besoin.
+                if ($isReverse) {
+                    array_reverse($currentRowOrCol);
+                }
+                if ($listOfStickers === null) {
+                    array_push($stickers, $currentRowOrCol);
+                }
+                //On stop la boucle une fois le dernier tableau affecté !
+                if ($acc = ($n * $deep)) {
+                    break;
+                }
+                $currentRowOrCol = [];
+
+                //On se décale à X + 1
+                if ($type == 'col' && $index == 0) {
+                    $i += 1;
+                    //On se décale à X - 1
+                } else if ($type == 'col' && $index == $n - 1) {
+                    $i -= 1;
+                    //On se décale à Y + 1
+                } else if ($type == 'row' && $index == 0) {
+                    $i += $n;
+                    //On se décale à Y - 1
+                } else {
+                    $i -= $n;
+                }
+            }
 
             //On récupère ou on réaffecte le sticker.
             if ($listOfStickers !== null) {
-                $face[$i] = $stickers[$acc];
+                $noRowOrCol = intdiv($acc,$n);
+
+                //On va chercher le bon sticker dans la  bonne ligne/colonne.
+                $face[$i] = $stickers[$noRowOrCol][$acc - ($noRowOrCol * $n)];
             } else {
-                array_push($stickers, $face[$i]);
+                array_push($currentRowOrCol, $face[$i]);
             }
 
-            //On saute toute la ligne pour arriver à (x,y + 1)
+            //On saute la ligne pour arriver à (x,y + 1)
             if ($type == 'col') {
                 $i += $n;
             } else {
