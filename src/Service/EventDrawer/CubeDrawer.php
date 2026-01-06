@@ -188,105 +188,50 @@ final class CubeDrawer implements CubeDrawerInterface
         return $cube;
     }
 
-    /**
-     * Récupération des stickers à permuter.
-     */
-    private function stickersToTake(array $face, int $index, int $deep, bool $isReverse, string $type, int $n): array
-    {
-        return self::stickersToTakeOrUpdate($face, null, $index, $deep, $isReverse, $type, $n);
-    }
-
-    /**
-     * Réaffectation des stickers sur la face destination.
-     */
-    private function stickersToUpdate(array $face, array $stickersToReaffect, int $index, int $deep, string $type, int $n): array
-    {
-        return self::stickersToTakeOrUpdate($face, $stickersToReaffect, $index, $deep, false, $type, $n);
-    }
-
-    /**
-     * Fonction pour la récupération et la réaffectation des stickers.
+     /**
+     * Fonction pour la récupération de stickers.
      * 
      * @param array $face la face concernée à update
-     * @param ?array $listOfStickers, s'il s'agit d'une affectation de stickers, null sinon.
      * @param int $index le départ du premier sticker à modifier.
      * @param int $deep la profondeur du mouvement à faire.
      * @param bool $isReverse dans le cas d'une récupération, savoir si les stickers doivent être inversés sur chaque ligne/colonne de destination.
      * @param string $type s'il s'agit d'une modification d'une colonne ou d'une ligne de la face.
      * @param string $n la taille du cube.
-     * @return array la face modifié à retourner.
+     * @return array les stickers de la face à réaffecter.
      */
-    private function stickersToTakeOrUpdate(array $face, ?array $listOfStickers, int $index, int $deep, bool $isReverse, string $type, int $n): array
+    private function stickersToTake(array $face, int $index, int $deep, bool $isReverse, string $type, int $n): array
     {
-        //Si $listOfStickers est null, on récupère les stickers, sinon on les réaffecte.
         $stickers = [];
-        if ($listOfStickers !== null) {
-            $stickers = $listOfStickers;
-        }
-
-        $deparure = 0;
-        //Si on est dans une dernière colonne, on se place en (n-1,0);
-        if ($type === 'col' && $index === $n - 1) {
-            $deparure = $index;
-        }
-
-        //Si on est dans une dernière ligne, on se place en (0,n-1);
-        if ($type === 'row' && $index === $n - 1) {
-            $deparure = $n * ($n - 1);
-        }
-
-        $i = $deparure;
+        $i = self::defDeparture($type, $index, $n); 
         $acc = 0;
-        //N'est utilisé que lorsqu'on va récupérer les stickers.
+
+        //La ligne ou la colonne courante.
         $currentRowOrCol = [];
-        //On boucle sur N * les couches à faire + 1 car on veut réaliser une dernière action avant de stopper la boucle.
+
         while ($acc < ($n * $deep) + 1) {
 
             //Traitement à réaliser lorsque la colonne/ligne est terminée.
             if ($acc !== 0 && $acc % $n === 0) {
                 
                 //On veut push la ligne/colonne et l'inverser si besoin.
-
-                //Pourquoi la comparaison est comme ceci:
                 //https://www.php.net/manual/fr/function.array-search.php -> User Contributed Notes ->  cue at openxbox dot com
                 if ($isReverse !== false) {
                     array_reverse($currentRowOrCol);
                 }
-                if ($listOfStickers === null) {
-                    array_push($stickers, $currentRowOrCol);
-                }
-                //On stop la boucle une fois le dernier tableau affecté !
-                if ($acc = ($n * $deep)) {
-                    break;
-                }
                 $currentRowOrCol = [];
 
-                //On se décale à X + 1
-                if ($type === 'col' && $index === 0) {
-                    $i += 1;
-                    //On se décale à X - 1
-                } else if ($type === 'col' && $index === $n - 1) {
-                    $i -= 1;
-                    //On se décale à Y + 1
-                } else if ($type === 'row' && $index === 0) {
-                    $i += $n;
-                    //On se décale à Y - 1
-                } else {
-                    $i -= $n;
+                //On stop la boucle une fois le dernier tableau affecté !
+                if ($acc === ($n * $deep)) {
+                    break;
                 }
+                
+                //On se décale pour accéder la nouvelle ligne/Colonne.
+                $i += self::newIPos($type,$index,$n);
             }
-
-            //On récupère ou on réaffecte le sticker.
-            if ($listOfStickers !== null) {
-                $noRowOrCol = intdiv($acc,$n);
-
-                //On va chercher le bon sticker dans la  bonne ligne/colonne.
-                $face[$i] = $stickers[$noRowOrCol][$acc - ($noRowOrCol * $n)];
-            } else {
-                array_push($currentRowOrCol, $face[$i]);
-            }
-
-            //On saute la ligne pour arriver à (x,y + 1)
+        
+            array_push($currentRowOrCol, $face[$i]);
+           
+            //Dans le cas d'une colonne -> (x,y + 1)
             if ($type === 'col') {
                 $i += $n;
             } else {
@@ -295,10 +240,98 @@ final class CubeDrawer implements CubeDrawerInterface
             $acc++;
         }
 
-        if ($listOfStickers === null) {
-            return $stickers;
+        return $stickers;
+    }
+
+    /**
+     * Fonction pour la réaffectation des stickers.
+     * 
+     * @param array $face la face concernée à update
+     * @param array $stickersToReaffect Un tableau de lignes ou colonnes de stickers.
+     * @param int $deep la profondeur du mouvement à faire.
+     * @param string $type s'il s'agit de la modification d'une colonne ou d'une ligne de la face.
+     * @param string $n la taille du cube.
+     * @return array la face modifiée avec les stickers qui devaient être réaffectées.
+     */
+    private function stickersToUpdate(array $face, array $stickersToReaffect, int $index, int $deep, string $type, int $n): array
+    {
+
+        $i = self::defDeparture($type, $index, $n);
+        $acc = 0;
+
+        while ($acc < ($n * $deep) + 1) {
+
+            //Traitement à réaliser lorsque la colonne/ligne est terminée.
+            if ($acc !== 0 && $acc % $n === 0) {
+                     
+                //On stop la boucle une fois le dernier tableau affecté !
+                if ($acc === ($n * $deep)) {
+                    break;
+                }
+
+                //On se décale pour accéder la nouvelle ligne/Colonne.
+                $i += self::newIPos($type, $index, $n);
+            }
+
+            //On va chercher le bon sticker dans la bonne ligne/colonne.
+            $numberRowOrCol = intdiv($acc,$n);            
+            $face[$i] = $stickersToReaffect[$numberRowOrCol][$acc - ($numberRowOrCol * $n)];
+
+            //Dans le cas d'une colonne -> (x,y + 1)
+            if ($type === 'col') {
+                $i += $n;
+            } else {
+                $i++;
+            }
+            $acc++;
+        }
+        return $face;
+    }
+
+    /**
+     * Fonction utilitaire pour des récupérations/réaffectations de stickers.
+     * 
+     * @param $type le type de donnée
+     * @param $index le commencement de la donnée
+     * @param $n la taille du cube
+     * 
+     * @return int la position de départ pour commencer la boucle.
+     */
+    private function defDeparture(string $type, int $index,int $n) : int {
+         
+        //Si on est dans une dernière colonne, on se place en (n-1,0);
+        if ($type === 'col' && $index === $n - 1) {
+            return $index;
+        }
+
+        //Si on est dans une dernière ligne, on se place en (0,n-1);
+        if ($type === 'row' && $index === $n - 1) {
+            return $n * ($n - 1);
+        }
+
+        return 0;
+    }
+
+    /**
+     * Fonction utilitaire pour les récupérations/réaffections de stickers.
+     * 
+     * @param $type le type de donnée
+     * @param $index le commencement de la donnée
+     * @param $n la taille du cube
+     * 
+     * @return int le décalage à réaliser.
+     */
+    private function newIPos(string $type, int $index, int $n) : int {
+
+        if ($type === 'col' && $index === 0) {
+            return 1;
+        } else if ($type === 'col' && $index === $n - 1) {
+            return -1;
+        } else if ($type === 'row' && $index === 0) {
+            return $n;
         } else {
-            return $face;
+            return -$n;
         }
     }
+
 }
