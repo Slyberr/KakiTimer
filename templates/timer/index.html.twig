@@ -8,11 +8,13 @@
 <div data-controller="timer" data-timer-url-value="{{ path('app_timer_generate_scramble')}}">
     <div class="box-timer-solves">
         <div class="choose-event" >
-            <select name="events" id="events-list" data-timer-target="listofevents" data-action="change->#refreshAndDrawScramble">
+            <select name="events" id="events-list" data-timer-target="listofevents" data-action="change->timer#refreshAndDrawScramble">
                 <option value="222">2x2</option>
                 <option selected="true" value="333">3x3</option>
                 <option value="444">4x4</option>
                 <option value="555">5x5</option>
+                <option value="666">6x6</option>
+                <option value="777">7x7</option>
                 <option value="pyram">Pyraminx</option>
                 <option value="sq1">Square-1</option>
             </select>

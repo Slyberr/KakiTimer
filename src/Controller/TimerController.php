@@ -45,13 +45,10 @@ final class TimerController extends AbstractController
     #[Route('/timer/scramble/draw', methods:['GET'], name: 'app_timer_draw_scramble')]
     public function drawScramble(Request $request, CubeDrawerInterface $draw): JsonResponse
     {
-        
+
         $n = $request->query->get('event');
         $scramble = $request->query->get('scramble');
-        
-        
         $cubeScrambled = $draw->drawScramble($scramble,new Cube($n[0]));
-
 
         return new JsonResponse(['cubeScrambled' => $cubeScrambled->getCube()]);   
     }

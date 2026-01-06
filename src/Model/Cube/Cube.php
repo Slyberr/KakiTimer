@@ -55,7 +55,7 @@ final class Cube implements CubeInterface
 
         $face = [];
 
-        for ($i=0; $i < $cubeSize*$cubeSize; $i++) {
+        for ($i = 0; $i < $cubeSize*$cubeSize; $i++) {
             array_push($face, $color);
         }
         return $face;

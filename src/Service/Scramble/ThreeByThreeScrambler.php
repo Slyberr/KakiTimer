@@ -36,10 +36,10 @@ final class ThreeByThreeScrambler implements ScrambleGeneratorInterface
                 $potentialMove = $possible_moves[$randomMove];
             } while (!self::mouvIsOk($scrambleToBuild, $potentialMove, $i));
 
-            if ($randTypeMove == 2) {
+            if ($randTypeMove === 2) {
                  $potentialMove .= self::APOSTROPHE;
                 
-            } else if ($randTypeMove == 3) {
+            } else if ($randTypeMove === 3) {
                 
                 $potentialMove .= self::DOUBLE;
             } else {
@@ -59,12 +59,12 @@ final class ThreeByThreeScrambler implements ScrambleGeneratorInterface
     {
          
         //Déjà un mouvement dans la séquence ?
-        if (count($scrambleToBuild) == 0) {
+        if (count($scrambleToBuild) === 0) {
             return true;
         } else {
             //Mouvement identique au précédent 
 
-            if ($scrambleToBuild[$actualRank - 1][0] != $moveToAdd && self::NotAUselessMove($scrambleToBuild, $moveToAdd, $actualRank)) {
+            if ($scrambleToBuild[$actualRank - 1][0] !== $moveToAdd && self::NotAUselessMove($scrambleToBuild, $moveToAdd, $actualRank)) {
                 return true;
             }
         }
@@ -86,7 +86,7 @@ final class ThreeByThreeScrambler implements ScrambleGeneratorInterface
         //Si le dernier mouvement enregistré est un mouvement opposé et que le mouvement encore antérieur est identique au mouvement à rentrer.
         //On prend le premier char de la string pour ne pas avoir le facteur double move (2)
 
-        if ($lastMoveFace == $myOppMove  && $beforeLastMoveFace == $moveToAdd) {
+        if ($lastMoveFace === $myOppMove  && $beforeLastMoveFace === $moveToAdd) {
             return false;
         }
 

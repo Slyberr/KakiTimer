@@ -138,33 +138,35 @@ final class CubeDrawer implements CubeDrawerInterface
 
             //On détermine si on bouge la première/dernière colonne/ligne de la face.
             //On profite du type mixed.
-            if ($index != '0') {
+            if ($index !== '0') {
                 $index = $n - 1;
+            } else {
+                $index = 0;
             }
 
             //Création de la liste des stickers à permuter.
             $stickersToMove = [];
 
-            if ($index == 0) {
-                $stickersToMove =  self::stickersToTake($faceOfLeavedStickers, $index, $deep, $isReverse, $type, $n);
+            if ($index === 0) {
+                $stickersToMove = self::stickersToTake($faceOfLeavedStickers, $index, $deep, $isReverse, $type, $n);
             } else {
-                $stickersToMove  = self::stickersToTake($faceOfLeavedStickers, $index, $deep, $isReverse, $type, $n);
+                $stickersToMove = self::stickersToTake($faceOfLeavedStickers, $index, $deep, $isReverse, $type, $n);
             }
 
           
-            $indexFaceToUpdate = "";
+            $indexFaceToUpdate = 0;
 
             //On recherche la face de destination des stickers de la face courante.
-            if ($moveType == self::DOUBLE) {
+            if ($moveType === self::DOUBLE) {
                 $indexFaceToUpdate = ($i + 2);
-            } else if ($moveType == self::REVERSE) {
+            } else if ($moveType === self::REVERSE) {
                 $indexFaceToUpdate = ($i - 1);
             } else {
                 $indexFaceToUpdate = ($i + 1);
             }
 
             //Dans le cas où $i = 0 et que le mouvement est 'REVERSE'. (-1 % 4 = -1 en PHP)
-            if ($indexFaceToUpdate == -1) {
+            if ($indexFaceToUpdate === -1) {
                 $indexFaceToUpdate = 3;
             }
 
@@ -173,8 +175,10 @@ final class CubeDrawer implements CubeDrawerInterface
             $typeFaceToUpdate =  $getSpecif[$indexFaceToUpdate % 4]["type"];
             $indexFaceToUpdate = $getSpecif[$indexFaceToUpdate % 4]["index"];
 
-            if ($indexFaceToUpdate != '0') {
+            if ($indexFaceToUpdate !== '0') {
                 $indexFaceToUpdate = $n - 1;
+            } else {
+                $indexFaceToUpdate = 0;
             }
 
             //On affecte les valeurs dans sur la face de destination.
@@ -222,12 +226,12 @@ final class CubeDrawer implements CubeDrawerInterface
 
         $deparure = 0;
         //Si on est dans une dernière colonne, on se place en (n-1,0);
-        if ($type == 'col' && $index == $n - 1) {
+        if ($type === 'col' && $index === $n - 1) {
             $deparure = $index;
         }
 
         //Si on est dans une dernière ligne, on se place en (0,n-1);
-        if ($type == 'row' && $index == $n - 1) {
+        if ($type === 'row' && $index === $n - 1) {
             $deparure = $n * ($n - 1);
         }
 
@@ -239,10 +243,13 @@ final class CubeDrawer implements CubeDrawerInterface
         while ($acc < ($n * $deep) + 1) {
 
             //Traitement à réaliser lorsque la colonne/ligne est terminée.
-            if ($acc !== 0 && $acc % $n == 0) {
+            if ($acc !== 0 && $acc % $n === 0) {
                 
                 //On veut push la ligne/colonne et l'inverser si besoin.
-                if ($isReverse) {
+
+                //Pourquoi la comparaison est comme ceci:
+                //https://www.php.net/manual/fr/function.array-search.php -> User Contributed Notes ->  cue at openxbox dot com
+                if ($isReverse !== false) {
                     array_reverse($currentRowOrCol);
                 }
                 if ($listOfStickers === null) {
@@ -255,13 +262,13 @@ final class CubeDrawer implements CubeDrawerInterface
                 $currentRowOrCol = [];
 
                 //On se décale à X + 1
-                if ($type == 'col' && $index == 0) {
+                if ($type === 'col' && $index === 0) {
                     $i += 1;
                     //On se décale à X - 1
-                } else if ($type == 'col' && $index == $n - 1) {
+                } else if ($type === 'col' && $index === $n - 1) {
                     $i -= 1;
                     //On se décale à Y + 1
-                } else if ($type == 'row' && $index == 0) {
+                } else if ($type === 'row' && $index === 0) {
                     $i += $n;
                     //On se décale à Y - 1
                 } else {
@@ -280,7 +287,7 @@ final class CubeDrawer implements CubeDrawerInterface
             }
 
             //On saute la ligne pour arriver à (x,y + 1)
-            if ($type == 'col') {
+            if ($type === 'col') {
                 $i += $n;
             } else {
                 $i++;
