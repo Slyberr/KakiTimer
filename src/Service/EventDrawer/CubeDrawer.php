@@ -134,7 +134,7 @@ final class CubeDrawer implements CubeDrawerInterface
             $index = $getSpecif[$i]["index"];
 
             //Les stickers de la face courante à permuter pourrait être inversée sur la face destination.
-            $isReverse =  array_search($moveType, $getSpecif[$i]["inverse"]);
+            $isReverse =  in_array($moveType, $getSpecif[$i]["inverse"]);
 
             //On détermine si on bouge la première/dernière colonne/ligne de la face.
             //On profite du type mixed.
@@ -145,15 +145,8 @@ final class CubeDrawer implements CubeDrawerInterface
             }
 
             //Création de la liste des stickers à permuter.
-            $stickersToMove = [];
+            $stickersToMove = self::stickersToTake($faceOfLeavedStickers, $index, $deep, $isReverse, $type, $n);
 
-            if ($index === 0) {
-                $stickersToMove = self::stickersToTake($faceOfLeavedStickers, $index, $deep, $isReverse, $type, $n);
-            } else {
-                $stickersToMove = self::stickersToTake($faceOfLeavedStickers, $index, $deep, $isReverse, $type, $n);
-            }
-
-          
             $indexFaceToUpdate = 0;
 
             //On recherche la face de destination des stickers de la face courante.
@@ -213,11 +206,11 @@ final class CubeDrawer implements CubeDrawerInterface
             //Traitement à réaliser lorsque la colonne/ligne est terminée.
             if ($acc !== 0 && $acc % $n === 0) {
                 
-                //On veut push la ligne/colonne et l'inverser si besoin.
-                //https://www.php.net/manual/fr/function.array-search.php -> User Contributed Notes ->  cue at openxbox dot com
-                if ($isReverse !== false) {
-                    array_reverse($currentRowOrCol);
+                if ($isReverse) {
+                    $currentRowOrCol = array_reverse($currentRowOrCol);
                 }
+
+                array_push($stickers,$currentRowOrCol);
                 $currentRowOrCol = [];
 
                 //On stop la boucle une fois le dernier tableau affecté !
