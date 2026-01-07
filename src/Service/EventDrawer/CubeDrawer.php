@@ -23,11 +23,16 @@ final class CubeDrawer implements CubeDrawerInterface
 
                 $moveType = self::NORMAL;
                 $deep = 1;
+
+                //L'index de l'information du mouvement.
+                $indexOfMove = 0;
                 //S'il s'agit d'un wide move (4x4+)
                 if (str_contains($match, ScrambleGeneratorInterface::WIDE)) {
 
                     //S'il s'agit d'un wide move de 3 tranches (6x6+) Doit être plus robuste à l'avenir pour générer des mélanges de 9x9 par exemple.
                     if ($match[0] == ScrambleGeneratorInterface::TRIPLEWIDE) {
+                        //Car 3Xw2 -> X est en position 1.
+                        $indexOfMove = 1;
                         $deep = 3;
                     } else {
                         $deep = 2;
@@ -44,8 +49,8 @@ final class CubeDrawer implements CubeDrawerInterface
                 }
 
                 //Permutation des stickers de la face principale puis des 4 faces adjs.
-                $cubeScrambled[$match[0]] = self::permuteStickersOnFace($cubeScrambled[$match[0]], $moveType, $n);
-                $cubeScrambled = self::permuteStickersAdj($cubeScrambled, $match[0], $moveType, $deep, $n);
+                $cubeScrambled[$match[$indexOfMove]] = self::permuteStickersOnFace($cubeScrambled[$match[$indexOfMove]], $moveType, $n);
+                $cubeScrambled = self::permuteStickersAdj($cubeScrambled, $match[$indexOfMove], $moveType, $deep, $n);
             }
         }
         $objcube->setCube($cubeScrambled);
