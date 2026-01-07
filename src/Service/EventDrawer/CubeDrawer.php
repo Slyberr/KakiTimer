@@ -201,9 +201,13 @@ final class CubeDrawer implements CubeDrawerInterface
         //La ligne ou la colonne courante.
         $currentRowOrCol = [];
 
-        while ($acc < ($n * $deep) + 1) {
+        while ($acc < ($n * $deep)) {
 
-            //Traitement à réaliser lorsque la colonne/ligne est terminée.
+            array_push($currentRowOrCol, $face[$i]);
+            
+            $acc++;
+           
+             //Traitement à réaliser lorsque la colonne/ligne est terminée.
             if ($acc !== 0 && $acc % $n === 0) {
                 
                 if ($isReverse) {
@@ -213,24 +217,21 @@ final class CubeDrawer implements CubeDrawerInterface
                 array_push($stickers,$currentRowOrCol);
                 $currentRowOrCol = [];
 
-                //On stop la boucle une fois le dernier tableau affecté !
-                if ($acc === ($n * $deep)) {
-                    break;
-                }
                 
                 //On se décale pour accéder la nouvelle ligne/Colonne.
+                //Lors de la dernière itération, $i aura une valeur hors plage -> c'est normal.
                 $i += self::newIPos($type,$index,$n);
-            }
-        
-            array_push($currentRowOrCol, $face[$i]);
-           
-            //Dans le cas d'une colonne -> (x,y + 1)
-            if ($type === 'col') {
-                $i += $n;
             } else {
-                $i++;
+
+                //Dans le cas d'une colonne -> (x,y + 1)
+                if ($type === 'col') {
+                    $i += $n;
+                } else {
+                    $i++;
+                }
             }
-            $acc++;
+
+            
         }
 
         return $stickers;
@@ -248,35 +249,32 @@ final class CubeDrawer implements CubeDrawerInterface
      */
     private function stickersToUpdate(array $face, array $stickersToReaffect, int $index, int $deep, string $type, int $n): array
     {
-
         $i = self::defDeparture($type, $index, $n);
         $acc = 0;
 
-        while ($acc < ($n * $deep) + 1) {
-
-            //Traitement à réaliser lorsque la colonne/ligne est terminée.
-            if ($acc !== 0 && $acc % $n === 0) {
-                     
-                //On stop la boucle une fois le dernier tableau affecté !
-                if ($acc === ($n * $deep)) {
-                    break;
-                }
-
-                //On se décale pour accéder la nouvelle ligne/Colonne.
-                $i += self::newIPos($type, $index, $n);
-            }
+        while ($acc < ($n * $deep)) {
 
             //On va chercher le bon sticker dans la bonne ligne/colonne.
             $numberRowOrCol = intdiv($acc,$n);            
             $face[$i] = $stickersToReaffect[$numberRowOrCol][$acc - ($numberRowOrCol * $n)];
 
-            //Dans le cas d'une colonne -> (x,y + 1)
-            if ($type === 'col') {
-                $i += $n;
-            } else {
-                $i++;
-            }
             $acc++;
+
+            //Traitement à réaliser lorsque la colonne/ligne est terminée.
+            if ($acc !== 0 && $acc % $n === 0) {
+                    
+                //On se décale pour accéder la nouvelle ligne/Colonne.
+                //Lors de la dernière itération, $i aura une valeur hors plage -> c'est normal.
+                $i += self::newIPos($type, $index, $n);
+
+            } else {
+                //Dans le cas d'une colonne -> (x,y + 1)
+                if ($type === 'col') {
+                    $i += $n;
+                } else {
+                    $i++;
+                }
+            } 
         }
         return $face;
     }
@@ -316,14 +314,22 @@ final class CubeDrawer implements CubeDrawerInterface
      */
     private function newIPos(string $type, int $index, int $n) : int {
 
+        //On se place: 
+
+        //Sur le début de la colonne suivante.
         if ($type === 'col' && $index === 0) {
-            return 1;
+            return - ((($n - 1) * $n) - 1);
+        //Sur le début de la colonne précédente.
         } else if ($type === 'col' && $index === $n - 1) {
-            return -1;
+           return - ((($n - 1) * $n) + 1);
+        
+        //Sur le début de la ligne suivante.
         } else if ($type === 'row' && $index === 0) {
-            return $n;
+            return 1;
+
+        //sur le début de la ligne précédente.
         } else {
-            return -$n;
+            return - ((2 * $n) - 1);
         }
     }
 
