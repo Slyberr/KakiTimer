@@ -14,11 +14,7 @@ final class SolveController extends AbstractController
     #[Route('/timer/save', methods:['POST'], name: 'app_time_save')]
     public function saveTime(Request $request, EntityManagerInterface $entityManager)
     {
-
         $data = json_decode($request->getContent(),true);
-
         $solve = new SolveEntity();
-        
-
     }
 }

@@ -20,15 +20,21 @@
             </select>
         </div>
         <div class="box-timer" >
-            <h2 id="scramble" data-timer-target="scramble">Aucun event n'a été choisi.</h2>
-            <div id="timer"  data-timer-target="timer">0.00</div>
+            <h2 class="scramble" data-timer-target="scramble">Aucun event n'a été choisi.</h2>
+            <div class="timer-state"  data-timer-target="timer">0.00</div>
+            
+            <div class="times-and-draw">
+            {{ include('solve/index.html.twig') }}
+            <div class="cube-drawer-component" data-timer-target="cubedrawer" style="color:white;"></div>
+            </div>
+            
         </div>
     </div>
-    {{ include('solve/index.html.twig') }}
+    
     
 </div>
 
-<div id="cube-drawed"></div>
+
 
 {% endblock %}
 

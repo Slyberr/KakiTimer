@@ -1,49 +1,68 @@
-:root{
-    //selon le type de cube à afficher cela sera changé côté JS.
-    --face-columns : 1fr 1fr 1fr;
-    --face-rows : 1fr 1fr 1fr;
-}
-
-.box-timer-solves{
-    display: flex;
-    
-}
-
-.box-timer {
-    display: flex;
-    flex-direction: column;
-    background-color: aquamarine;
-}
-.timer {
-    font-size: 30px;
-}
-
-#cube-drawed {
-    display: flex;
-    max-width: 500px;
-    gap:50px;
-    flex-direction: column;
-    background-color: black;
-   // :last-child {
-     //   margin-left: 50px;
-    //}
-}
+body {
+    .box-timer-solves {
+        display: flex;
+        flex-direction: column;
 
 
+        .box-timer {
+            display: flex;
+            flex-direction: column;
+            background-color: lightgray;
+            align-items: center;
+
+            .scramble {
+                background-color: black;
+                color: white;
+            }
+
+            .timer-state {
+                margin: 0px 100px;
+                font-size: 30px;
+            }
+
+            .times-and-draw {
+                display: grid;
+                grid-template-columns: 8fr 2fr;
+                width: 100%;
+            }
 
 
-.face {
-    display: grid;
-    grid-template-columns:var(--face-columns);
-    grid-template-rows:  var(var(--face-rows));
-    width: 0px;
-    margin:10px;
-    gap:1px
+            .cube-drawer-component {
+                background-color: black;
+                min-width: auto;
+                align-self: flex-end;
 
-}
+                .cube-scrambled {
+                    display: grid;
+                    grid-template-areas: "a b c d"
+                        "e e e e"
+                        "f g h i";
 
-.the-line-on-patron {
-    display: flex;
-    flex-direction: row;
-    gap: 100px;
+                    .face {
+                        display: grid;
+                        margin: 5px;
+                        gap: 1px;
+                    }
+
+                    >.face-0 {
+                        grid-area: b;
+                    }
+
+                    >.face-5 {
+                        grid-area: g;
+                    }
+
+                    >.the-line-on-patron {
+                        grid-area: e;
+                        display: flex;
+                        flex-direction: row;
+                    }
+                }
+
+            }
+
+        }
+
+
+    }
 }

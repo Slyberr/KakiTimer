@@ -1,7 +1,6 @@
 
 import { Controller } from '@hotwired/stimulus';
 import { randomScrambleForEvent } from 'cubing/scramble';
-import { Exception } from 'sass';
 
 const NOT_READY = "NOT_READY";
 const READY = "READY";
@@ -11,7 +10,7 @@ const MIN = 60000;
 
 export default class extends Controller {
 
-    static targets = ["timer", "scramble", "solves", "averages", "listofevents"];
+    static targets = ["timer", "scramble", "solves", "averages", "listofevents","cubedrawer"];
     static values = { url: String };
 
     //Appelé au chargement de la page
@@ -90,24 +89,25 @@ export default class extends Controller {
     }
 
     async refreshAndDrawScramble() {
-
+        this.scrambleTarget.innerText = "Génération du mélange en cours...";
+        this.cubedrawerTarget.innerHTML = "<h3>Génération du dessin en cours...</h3>"
         const newScramble = await this.refreshScramble();
-        const draw = await this.drawScramble(newScramble);
-        let gridSectionToDo = "";
         this.scrambleTarget.innerText = newScramble;
 
+        
 
         //Selon la dimension "n", on va créer une grid NxN en fonction du cube à afficher.
         let i = 0;
+        let gridSectionToDo = "";
+        let stickersSize = 30;
         while (i < this.listofeventsTarget.value[0]) {
             gridSectionToDo+= "1fr ";
             i++
+            stickersSize*=0.85;
         }
-        
-        document.documentElement.style.setProperty('--face-columns',gridSectionToDo);
-        document.documentElement.style.setProperty('--face-rows',gridSectionToDo);
-        document.getElementById('cube-drawed').innerHTML = draw;
-       
+
+        const draw = await this.drawScramble(newScramble,gridSectionToDo,stickersSize);
+        this.cubedrawerTarget.innerHTML = draw;
     }
 
     async refreshScramble() {
@@ -142,14 +142,14 @@ export default class extends Controller {
         }
     }
 
-    async drawScramble(scramble) {
+    async drawScramble(scramble,gridSectionToDo,stickersSize) {
         
         const eventType = this.listofeventsTarget.value;
         let cube = [];
 
         if (eventType === '333' || eventType === '444' || eventType === '555' || eventType === '666' || eventType === '777' || eventType === '222') {
             try {
-                const urlValue = "/timer/scramble/draw";
+                const urlValue = '/timer/scramble/draw';
                 const params = new URLSearchParams({
                     event : eventType,
                     scramble : scramble
@@ -159,37 +159,37 @@ export default class extends Controller {
                 const response = await fetch(urlWithParam);
                 const data = await response.json();
                 let cube = data.cubeScrambled;
-                return this.renderCubeDraw(cube);
+                return this.renderCubeDraw(cube,gridSectionToDo,stickersSize);
             }catch(error) {
                 document.getElementById('cube-drawed').textContent = "Problème lors de l'affichage du dessin.";
                 console.error(error.message);
             }
-        }
+        } 
 
     }
 
-    renderCubeDraw(cube) {
+    renderCubeDraw(cube,gridSectionToDo,stickersSize) {
         let HTMLstructure = "";
         HTMLstructure += '<div class="cube-scrambled">';
         let acc=0;
         for (const [face,tabstickers] of Object.entries(cube)) {
 
 
-            if (acc == 2) {
-                HTMLstructure += '<div class="the-line-on-patron">';
+            if (acc == 1) {
+                HTMLstructure += `<div class="the-line-on-patron">`;
             }
 
-            HTMLstructure += '<div class="face">';
+            HTMLstructure += `<div class="face face-${acc}" style="grid-template-columns:${gridSectionToDo};grid-template-rows:${gridSectionToDo}">`;
             for (const sticker of tabstickers) {
 
                 let color = sticker;
-                HTMLstructure += `<span style='display:inline-block;width:15px;height:15px;background-color:${color};border:1px black solid'></span>`
+                HTMLstructure += `<span style="display:inline-block;width:${stickersSize}px;height:${stickersSize}px;background-color:${color};border:1px black solid"></span>`
             
             }
             HTMLstructure += '</div>';
 
             //the-line-on-patron
-            if (acc == 5){
+            if (acc == 4){
                 HTMLstructure += '</div>'
             }
             acc++;

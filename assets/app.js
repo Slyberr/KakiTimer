@@ -5,3 +5,4 @@ import './controllers';
 import './styles/app.scss';
 import './styles/solve.scss';
 import './styles/timer.scss';
+import './styles/index.scss';

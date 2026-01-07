@@ -1,12 +1,15 @@
 //Fichier de style aux élements globals de l'applications
 //les propriétés pourront être surchargées si besoin.
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap');
 
-header {
-    background-color: black;
-    color:blue;
-    margin:0;
-
-    ul {
-        display:flex;
+:root {
+    font-family: Orbitron;
+    background: linear-gradient(90deg,rgb(255, 255, 255) 0%, rgb(144, 222, 195) 53%);
+}
+.box-logo-kaki-timer {
+    img {
+        width: 40px; 
+        border-radius: 10px;
     }
 }
+
