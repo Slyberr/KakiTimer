@@ -4,7 +4,28 @@
 
 :root {
     font-family: Orbitron;
-    background: linear-gradient(90deg,rgb(255, 255, 255) 0%, rgb(144, 222, 195) 53%);
+
+    //Variables sensibles au brightMode.
+
+    --background-color1 : whitesmoke;
+    --background-color2 : rgb(75, 197, 154);
+
+    --default-text-color1 : black;
+    --default-text-color-in-box : whitesmoke;
+    --container-color1 : rgb(54, 54, 102);
+    --container-color2: lightgrey;   
+}
+
+body {
+    margin : 0;
+    background: linear-gradient(90deg,var(--background-color1), var(--background-color2) 53%);
+    transition: background-color 0.5s ease, color 0.5s ease;
+    header {
+        position: sticky;
+        width:100%;
+        background-color: var(--container-color1);
+        
+    }
 }
 .box-logo-kaki-timer {
     img {

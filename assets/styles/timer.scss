@@ -7,12 +7,12 @@ body {
         .box-timer {
             display: flex;
             flex-direction: column;
-            background-color: lightgray;
+            background-color: var(--background-color2);
             align-items: center;
 
             .scramble {
-                background-color: black;
-                color: white;
+                background-color: var(--background-color1);
+                color: var(--default-text-color1);
             }
 
             .timer-state {
@@ -29,7 +29,7 @@ body {
 
             .cube-drawer-component {
                 display: flex;
-                background-color: black;
+                background-color: var(--container-color1);
                 min-width: auto;
                 align-self: flex-end;
 

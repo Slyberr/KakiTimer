@@ -15,10 +15,16 @@
 
     <body>
         {% block body %}
-            <div class="box-logo-kaki-timer">
+        <div data-controller="application">
+        <header>
+            <a href="/" class="box-logo-kaki-timer" >
                 <img src="{{ asset('img/kakitimer-alpha-no-title.png') }}">
-            </div>
-        
+            </a>
+            <a class="icon-night-mode" >
+                <img is-bright-mode="false" data-application-target="brightmode" src="{{ asset('img/svg/moon.svg') }}">
+            </a>
+        </header>
+        </div>
         {% endblock %}
     </body>
 </html>

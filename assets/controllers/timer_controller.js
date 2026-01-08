@@ -1,7 +1,6 @@
 
-import { Controller } from '@hotwired/stimulus';
 import { randomScrambleForEvent } from 'cubing/scramble';
-
+import { Controller } from '@hotwired/stimulus';
 const NOT_READY = "NOT_READY";
 const READY = "READY";
 const RUNNING = "RUNNING";
@@ -15,6 +14,8 @@ export default class extends Controller {
 
     //Appelé au chargement de la page
     async connect() {
+
+        super.connect();
 
         await this.refreshAndDrawScramble();
         this.timerRunning = false;
