@@ -1,6 +1,8 @@
 
 import { randomScrambleForEvent } from 'cubing/scramble';
 import { Controller } from '@hotwired/stimulus';
+import { SolveController } from '../controllers/solve_controller';
+
 const NOT_READY = "NOT_READY";
 const READY = "READY";
 const RUNNING = "RUNNING";
@@ -9,7 +11,7 @@ const MIN = 60000;
 
 export default class extends Controller {
 
-    static targets = ["timer", "scramble", "solves", "averages", "listofevents","cubedrawer"];
+    static targets = ["timer", "scramble", "listofsessions", "cubedrawer"];
     static values = { url: String };
 
     //Appelé au chargement de la page
@@ -85,8 +87,8 @@ export default class extends Controller {
         clearInterval(this.intervalID);
 
         await this.refreshAndDrawScramble();
-        this.saveTime(this.timerTarget.innerText);
-        this.calculateAverages(this.solvesTarget)
+        SolveController.saveTime(this.timerTarget.innerText);
+        SolveController.calculateAverages(this.solvesTarget);
     }
 
     async refreshAndDrawScramble() {
@@ -95,85 +97,93 @@ export default class extends Controller {
         const newScramble = await this.refreshScramble();
         this.scrambleTarget.innerText = newScramble;
 
-        
-
         //Selon la dimension "n", on va créer une grid NxN en fonction du cube à afficher.
         let i = 0;
         let gridSectionToDo = "";
         let stickersSize = 30;
-        while (i < this.listofeventsTarget.value[0]) {
-            gridSectionToDo+= "1fr ";
+        while (i < this.listofsessionsTarget.value[0]) {
+            gridSectionToDo += "1fr ";
             i++
-            stickersSize*=0.85;
+            stickersSize *= 0.85;
         }
 
-        const draw = await this.drawScramble(newScramble,gridSectionToDo,stickersSize);
+        const draw = await this.drawScramble(newScramble, gridSectionToDo, stickersSize);
         this.cubedrawerTarget.innerHTML = draw;
     }
 
     async refreshScramble() {
 
-        let theEvent = this.listofeventsTarget.value;
-        try {
+        let theEvent = this.listofsessionsTarget.value;
 
-            let newScramble = "";
-            this.scrambleTarget.innerText = "Génération du mélange en cours..."
 
-            //Je ne gère que la génération de 3x3 pour l'instant, je délègue sinon.
-            if (theEvent !== "333") {
-                newScramble = await randomScrambleForEvent(theEvent);
-                newScramble = newScramble.toString();
-            } else {
-                const params = new URLSearchParams ({
-                    event : theEvent
-                })
-                const urlWithParams = this.urlValue + `?${params.toString()}`;
+        let newScramble = "";
+        if (!theEvent) {
+            this.scrambleTarget.innerText = "Aucune session selectionnée";
+        } else {
+            try {
+                this.scrambleTarget.innerText = "Génération du mélange en cours..."
+                //Je ne gère que la génération de 3x3 pour l'instant, je délègue sinon.
+                if (theEvent !== "333") {
+                    newScramble = await randomScrambleForEvent(theEvent);
+                    newScramble = newScramble.toString();
+                } else {
+                    const params = new URLSearchParams({
+                        event: theEvent
+                    })
+                    const urlWithParams = this.urlValue + `?${params.toString()}`;
 
-                const response = await fetch(urlWithParams);
-                const data = await response.json();
-                newScramble = data.newScramble;
-                newScramble = newScramble.toString();
-            }            
-            
-            return newScramble;
+                    const response = await fetch(urlWithParams);
+                    const data = await response.json();
+                    newScramble = data.newScramble;
+                    newScramble = newScramble.toString();
+                }
 
-        } catch (error) {
-            this.scrambleTarget.innerText = "Aucun mélange généré."
-           console.error(error.message);
+                return newScramble;
+
+            } catch (error) {
+                this.scrambleTarget.innerText = "Aucun mélange généré."
+                console.error(error.message);
+            }
         }
+
+
+
+
     }
 
-    async drawScramble(scramble,gridSectionToDo,stickersSize) {
-        
-        const eventType = this.listofeventsTarget.value;
+    async drawScramble(scramble, gridSectionToDo, stickersSize) {
+
+        const eventType = this.listofsessionsTarget.value;
         let cube = [];
 
         if (eventType === '333' || eventType === '444' || eventType === '555' || eventType === '666' || eventType === '777' || eventType === '222') {
             try {
                 const urlValue = '/timer/scramble/draw';
                 const params = new URLSearchParams({
-                    event : eventType,
-                    scramble : scramble
+                    event: eventType,
+                    scramble: scramble
                 })
 
                 const urlWithParam = urlValue + `?${params.toString()}`
                 const response = await fetch(urlWithParam);
                 const data = await response.json();
                 let cube = data.cubeScrambled;
-                return this.renderCubeDraw(cube,gridSectionToDo,stickersSize);
-            }catch(error) {
-                document.getElementById('cube-drawed').textContent = "Problème lors de l'affichage du dessin.";
+                return this.renderCubeDraw(cube, gridSectionToDo, stickersSize);
+            } catch (error) {
+                document.getElementById('cube-drawer-component').textContent = "Problème lors de l'affichage du dessin.";
                 console.error(error.message);
             }
-        } 
+        } else {
+            //document.getElementById('cube-drawer-component').textContent = "Aucune session selectionnée";
+        }
 
     }
 
-    renderCubeDraw(cube,gridSectionToDo,stickersSize) {
+    renderCubeDraw(cube, gridSectionToDo, stickersSize) {
         let HTMLstructure = "";
         HTMLstructure += '<div class="cube-scrambled">';
-        let acc=0;
-        for (const [face,tabstickers] of Object.entries(cube)) {
+        let acc = 0;
+        for (const [face, tabstickers] of Object.entries(cube)) {
 
 
             if (acc == 1) {
@@ -185,46 +195,37 @@ export default class extends Controller {
 
                 let color = sticker;
                 HTMLstructure += `<span style="display:inline-block;width:${stickersSize}px;height:${stickersSize}px;background-color:${color};border:1px black solid"></span>`
-            
+
             }
             HTMLstructure += '</div>';
 
             //the-line-on-patron
-            if (acc == 4){
+            if (acc == 4) {
                 HTMLstructure += '</div>'
             }
             acc++;
         }
         //cube-scrambled
-        HTMLstructure +='</div>';
+        HTMLstructure += '</div>';
         return HTMLstructure;
     }
 
-
-    saveTime(time) {
-        this.solvesTarget.innerHTML += `<span>${time}</span>`;
+    createSession() {
+        const overlay = `<div class="overlay-session">
+                            <div class="panel-session">
+                                <h2>Création d'une nouvelle session :</h2>
+                                <input placeholder="nom"></input>
+                                <select class="events">
+                                    <option value="333">Cube 3x3<option>
+                                    <option value="444">Cube 4x4<option>
+                                </select>
+                                <button>Créer</button>
+                            </div>
+                        </div>`
+        document.querySelector(".the-body").insertAdjacentHTML('beforeend',overlay);
     }
-
-    calculateAverages(times) {
-        let allTimes = this.solvesTarget.children;
-        let mappedsAllTimes = Array.from(allTimes).map(x => parseFloat(x.innerText));
-        if (mappedsAllTimes.length >= 5) {
-            this.calculateAverage(mappedsAllTimes.slice(mappedsAllTimes.length - 5, mappedsAllTimes.length), 5)
-        }
-        if (mappedsAllTimes.length >= 12) {
-            this.calculateAverage(mappedsAllTimes.slice(mappedsAllTimes.length - 12, mappedsAllTimes.length), 12)
-        }
-
-    }
-
-    calculateAverage(times, count) {
-
-        let orderTimes = times.sort()
-        let timeForCal = orderTimes.slice(1, orderTimes.length - 1);
-        let sum = timeForCal.reduce((acc, currentVal) => acc + currentVal, 0);
-
-        this.averagesTarget.querySelector('#ao' + count).innerText = `ao${count} : ${(sum / timeForCal.length).toFixed(2)}`;
-
+    addSession() {
+        paneldocument.querySelector
     }
 
     //Transformation du temps au format HH:MM:SS.mm
@@ -259,4 +260,4 @@ export default class extends Controller {
         return valueToPrint;
     }
 }
-    
+
