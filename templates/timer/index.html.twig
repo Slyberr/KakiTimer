@@ -7,10 +7,15 @@
 
 <div data-controller="timer" data-timer-url-value="{{ path('app_timer_generate_scramble')}}">
     <div class="box-timer-solves">
-        <div class="choose-event" >
-            <select name="sessions" id="sessions-list" data-timer-target="listofsessions" data-action="change->timer#refreshAndDrawScramble">
+        <div class="choose-session" >
+            <select placeholder="Choisir une session" id="sessions-list" data-timer-target="listofsessions" data-action="change->timer#refreshAndDrawScramble">
+            <option value="">--Sélectionner une session--</option>
             </select>
             <button data-action="click->timer#createSession">+</button>
+            <span>
+            Activer l'inspection
+            <input class="allow-inspection" type="checkbox" data-timer-target="inspectioncheckbox" data-action="click->timer#setInspection"/>
+            </span>
         </div>
         <div class="box-timer" >
             <h2 class="scramble" data-timer-target="scramble">Aucun event n'a été choisi.</h2>

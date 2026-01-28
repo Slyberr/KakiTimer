@@ -8,7 +8,7 @@ export default class extends Controller {
         this.solvesTarget.innerHTML += `<span>${time}</span>`;
     }
 
-    calculateAverages(times) {
+    calculateAverages() {
         let allTimes = this.solvesTarget.children;
         let mappedsAllTimes = Array.from(allTimes).map(x => parseFloat(x.innerText));
         if (mappedsAllTimes.length >= 5) {
