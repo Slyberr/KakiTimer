@@ -30,17 +30,20 @@ export default class extends Controller {
 
         //Gestion de l'event espace
         window.addEventListener('keyup', (event) => {
-            this.keyup(event);
+            this.manageSpaceKeyUp(event);
         })
 
         window.addEventListener('keydown', (event) => {
-            this.keydown(event);
+            this.manageSpaceKeyDown(event);
         })
-
-
     }
 
-    keyup(event) {
+    /**
+     * Fonction pour gérer la touche espace quand elle est relevée (timer activée qu'au relevé de la touche).
+     * @param {KeyboardEvent} event 
+     */
+    manageSpaceKeyUp(event) {
+
         if (event.code === "Space") {
 
             switch (true) {
@@ -76,23 +79,28 @@ export default class extends Controller {
         }
     }
 
-    keydown(event) {
+    /**
+     * Fonction pour gérer la touche espace quand elle est pressée (arrêt instantané du timer).
+     * @param {KeyboardEvent} event 
+     */
+    manageSpaceKeyDown(event) {
         if (event.code === "Space" && this.timerRunning && this.actualState == RUNNING) {
             this.stop();
         }
     }
 
 
-    //Quand le timer est lancé
+    /**
+     * Fonction pour start le timer
+     */
     start() {
 
-        //performance.now() permet d'assurer une précision à l'ordre de la microseconde et 
-        //ne dépend pas du temps d'exécution du code.
-        //On stop l'inspection s'il a été activée.
+        //On stop l'inspection si activée.
         if (this.actualState === INSPECTING) {
             clearInterval(this.intervalInspecting);
             this.intervalInspecting = null;
         }
+
         this.timerRunning = true;
         this.timerTarget.innerText = "0.00";
         let actualTime = performance.now();
@@ -105,7 +113,9 @@ export default class extends Controller {
             , 10)
     }
 
-    //Quand le timer doit s'arrêter
+    /**
+     * Fonction pour arrêter le timer et la gestion de toutes les implications.
+     */
     async stop() {
         this.timerRunning = false;
         this.actualState = NOT_READY;
@@ -113,6 +123,7 @@ export default class extends Controller {
 
         await this.refreshAndDrawScramble();
         
+        //Affichage du temps et calculs à réaliser pour les averages.
         const solveElement = document.querySelector('[data-controller="solve"]');
         const solveController = this.application.getControllerForElementAndIdentifier(solveElement,'solve');
         if (solveController) {
@@ -122,6 +133,9 @@ export default class extends Controller {
         
     }
 
+    /**
+     * Fonction pour gérer la génération d'un nouveau mélange et de son patron
+     */
     async refreshAndDrawScramble() {
 
         //Si une session valide est selectionnée
@@ -142,10 +156,10 @@ export default class extends Controller {
                     stickersSize *= 0.85;
                 }
 
-                const draw = await this.drawScramble(newScramble, gridSectionToDo, stickersSize);
-                if (draw) {
-                    this.cubedrawerTarget.innerHTML = draw;
-                }
+                await this.drawScramble(newScramble, gridSectionToDo, stickersSize);
+                
+                this.cubedrawerTarget.innerHTML = draw;
+                
                 
             }
         } else {
@@ -154,6 +168,10 @@ export default class extends Controller {
         }
     }
 
+    /**
+     * Pouvoir refresh le scramble à l'écran par un autre.
+     * @returns le nouveau scramble généré
+     */
     async refreshScramble() {
 
         let theEvent = this.listofsessionsTarget.value;
@@ -185,6 +203,12 @@ export default class extends Controller {
 
     }
 
+    /**
+     * Function permettant de générer le patron du scramble
+     * @param {string} scramble 
+     * @param {string} gridSectionToDo 
+     * @param {number} stickersSize 
+     */
     async drawScramble(scramble, gridSectionToDo, stickersSize) {
 
         const eventType = this.listofsessionsTarget.value;
@@ -202,7 +226,7 @@ export default class extends Controller {
                 const response = await fetch(urlWithParam);
                 const data = await response.json();
                 let cube = data.cubeScrambled;
-                return this.renderCubeDraw(cube, gridSectionToDo, stickersSize);
+                this.cubedrawerTarget.innerHTML = this.renderCubeDraw(cube, gridSectionToDo, stickersSize);
             } catch (error) {
                 this.cubedrawerTarget.innerHTML = "<h3>Problème lors de l'affichage du dessin.</h3>";
                 console.error(error.message);
@@ -212,6 +236,13 @@ export default class extends Controller {
         }
     }
 
+    /**
+     * 
+     * @param {*} cube 
+     * @param {string} gridSectionToDo 
+     * @param {number} stickersSize 
+     * @returns 
+     */
     renderCubeDraw(cube, gridSectionToDo, stickersSize) {
         let HTMLstructure = "";
         HTMLstructure += '<div class="cube-scrambled">';
@@ -241,6 +272,9 @@ export default class extends Controller {
         return HTMLstructure;
     }
 
+    /**
+     * Function appelée lors du clique sur le bouton +, pour créer une nouvelle session
+     */
     createSession() {
         const overlay = `<div id="overlay-session">
                             <div id="panel-session">
@@ -271,6 +305,10 @@ export default class extends Controller {
             this.addSession();
         })
     }
+
+    /**
+     * Fonction utilitaire pour ajouter la session sur la page
+     */
     addSession() {
         const name = document.querySelector('#session-name').value;
         const value = document.querySelector('#listofevents').value;
@@ -282,6 +320,7 @@ export default class extends Controller {
         }
         
     }
+
 
     setInspection(){
         allowInspection = !allowInspection;
@@ -310,7 +349,11 @@ export default class extends Controller {
 
     }
 
-    //Transformation du temps au format HH:MM:SS.mm
+    /**
+     * Fonction utilitaire pour pouvoir transformer le temps en microsecondes en hh:mm:ss. 
+     * @param {number} time 
+     * @returns la valeur à afficher dans le timer.
+     */
     hourMinSecFormat(time) {
 
         let hours = null;
