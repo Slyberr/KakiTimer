@@ -48,11 +48,12 @@ export default class extends Controller {
 
             switch (true) {
                 //Le timer n'est pas prêt mais il n'est pas en cours
+                //Ce cas arrive lorsque le timer (keydown) vient d'être arrêté.
                 case (this.actualState == NOT_READY && !this.timerRunning):
                     this.actualState = READY;
                     break;
 
-                //Le timer est prêt, n'est pas en cours et a l'inspection d'activée.
+                //Le timer est prêt et à l'inspection d'activée.
                 case (this.actualState == READY && !this.timerRunning && allowInspection):
                     this.actualState = INSPECTING;
                     this.showInspection();
@@ -60,11 +61,10 @@ export default class extends Controller {
                 
                 //Le timer est en inspection et attend que l'utilisateur appui une nouvelle fois.
                 case (this.actualState == INSPECTING && !this.timerRunning && allowInspection ):
-                    this.intervalInspecting = null;
                     this.start();
                     break;
                 
-                //Le timer est pret est l'inspection n'est pas activée.
+                //Le timer est prêt et l'inspection n'est pas activée.
                 case (this.actualState == READY && !this.timerRunning && !allowInspection ):
                     this.start();
                     break;
@@ -118,6 +118,7 @@ export default class extends Controller {
      */
     async stop() {
         this.timerRunning = false;
+        //On applique un state NOT_READY pour que le Keyup ne redéclenche pas le timer juste après avoir pressé l'espace pour stop.
         this.actualState = NOT_READY;
         clearInterval(this.intervalID);
 
@@ -178,7 +179,7 @@ export default class extends Controller {
         let newScramble = "";
 
         try {
-            //Je ne gère que la génération de 3x3 pour l'instant, je délègue sinon.
+            //Je ne gère que la génération de mélange de 3x3 pour l'instant, je délègue sinon.
             if (theEvent !== "333") {
                 newScramble = await randomScrambleForEvent(theEvent);
                 newScramble = newScramble.toString();
@@ -214,7 +215,9 @@ export default class extends Controller {
         const eventType = this.listofsessionsTarget.value;
         let cube = [];
 
+        //Je ne supportes que cela pour l'instant.
         if (eventType === '333' || eventType === '444' || eventType === '555' || eventType === '666' || eventType === '777' || eventType === '222') {
+            
             try {
                 const urlValue = '/timer/scramble/draw';
                 const params = new URLSearchParams({
@@ -225,8 +228,10 @@ export default class extends Controller {
                 const urlWithParam = urlValue + `?${params.toString()}`
                 const response = await fetch(urlWithParam);
                 const data = await response.json();
+
                 let cube = data.cubeScrambled;
                 this.cubedrawerTarget.innerHTML = this.renderCubeDraw(cube, gridSectionToDo, stickersSize);
+
             } catch (error) {
                 this.cubedrawerTarget.innerHTML = "<h3>Problème lors de l'affichage du dessin.</h3>";
                 console.error(error.message);
@@ -328,12 +333,12 @@ export default class extends Controller {
 
     showInspection(){
         let seconds = 15;
-        this.timerTarget.value = seconds;
+        this.timerTarget.innerText = seconds;
 
         this.intervalInspecting = setInterval(() => {
             seconds--
             this.timerTarget.innerText = seconds;
-            if (this.seconds <= 0) {
+            if (seconds <= 0) {
                 this.timerTarget.innerText = 'DNF';
                 
                 const solveElement = document.querySelector('[data-controller="solve"]');
