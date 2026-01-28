@@ -8,7 +8,7 @@
 <div data-controller="timer" data-timer-url-value="{{ path('app_timer_generate_scramble')}}">
     <div class="box-timer-solves">
         <div class="choose-session" >
-            <select placeholder="Choisir une session" id="sessions-list" data-timer-target="listofsessions" data-action="change->timer#refreshAndDrawScramble">
+            <select placeholder="Choisir une session" id="sessions-list" data-timer-target="listofsessions" data-action="change->timer#changeSession">
             <option value="">--Sélectionner une session--</option>
             </select>
             <button data-action="click->timer#createSession">+</button>
@@ -19,7 +19,7 @@
         </div>
         <div class="box-timer" >
             <h2 class="scramble" data-timer-target="scramble">Aucun event n'a été choisi.</h2>
-            <div class="timer-state"  data-timer-target="timer">0.00</div>
+            <div class="timer-state"  data-timer-target="timer">XX.XX</div>
             
             <div class="times-and-draw">
             {{ include('solve/index.html.twig') }}

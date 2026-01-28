@@ -8,7 +8,7 @@ const RUNNING = "RUNNING";
 const INSPECTING = "INSPECTING";
 const HOUR = 3600000000;
 const MIN = 60000;
-let allowInspection = false;
+
 
 
 //La logique du timer (temps, affichage scramble et patron..)
@@ -22,18 +22,31 @@ export default class extends Controller {
     async connect() {
 
         super.connect();
-        await this.refreshAndDrawScramble();
+        this.currentScramble = null;
+        this.currentDraw = null;
         this.timerRunning = false;
-        //lors du chargement de la page, le timer est prêt.
-        this.actualState = READY;
+        this.allowInspection = false;
         this.intervalInspecting = null;
 
+        //Dans le futur, lorsqu'on pourra sauvegarder la session choisie.
+        if (this.listofsessionsTarget.value !== "") {
+            await this.newScrambleAndDraw(false);
+            this.refreshScrambleAndDraw();
+        }
+       
+        
+        
+        //lors du chargement de la page, le timer est prêt.
+        this.actualState = READY;
+        
+
+
         //Gestion de l'event espace
-        window.addEventListener('keyup', (event) => {
+        window.addEventListener('keyup', async (event) => {
             this.manageSpaceKeyUp(event);
         })
 
-        window.addEventListener('keydown', (event) => {
+        window.addEventListener('keydown', async (event) => {
             this.manageSpaceKeyDown(event);
         })
     }
@@ -42,9 +55,9 @@ export default class extends Controller {
      * Fonction pour gérer la touche espace quand elle est relevée (timer activée qu'au relevé de la touche).
      * @param {KeyboardEvent} event 
      */
-    manageSpaceKeyUp(event) {
+    async manageSpaceKeyUp(event) {
 
-        if (event.code === "Space") {
+        if (event.code === "Space" && this.listofsessionsTarget.value !== "") {
 
             switch (true) {
                 //Le timer n'est pas prêt mais il n'est pas en cours
@@ -54,24 +67,26 @@ export default class extends Controller {
                     break;
 
                 //Le timer est prêt et à l'inspection d'activée.
-                case (this.actualState == READY && !this.timerRunning && allowInspection):
+                case (this.actualState == READY && !this.timerRunning && this.allowInspection):
                     this.actualState = INSPECTING;
                     this.showInspection();
                     break;
                 
                 //Le timer est en inspection et attend que l'utilisateur appui une nouvelle fois.
-                case (this.actualState == INSPECTING && !this.timerRunning && allowInspection ):
-                    this.start();
+                case (this.actualState == INSPECTING && !this.timerRunning && this.allowInspection ):
+                    await this.start();
                     break;
                 
                 //Le timer est prêt et l'inspection n'est pas activée.
-                case (this.actualState == READY && !this.timerRunning && !allowInspection ):
-                    this.start();
+                case (this.actualState == READY && !this.timerRunning && !this.allowInspection ):
+                    await this.start();
                     break;
 
                 default:
                     break;
             }
+        } else {
+            this.timerTarget.innerText = "XX.XX"
         }
 
         if (event.code === "Escape") {
@@ -83,9 +98,9 @@ export default class extends Controller {
      * Fonction pour gérer la touche espace quand elle est pressée (arrêt instantané du timer).
      * @param {KeyboardEvent} event 
      */
-    manageSpaceKeyDown(event) {
+    async manageSpaceKeyDown(event) {
         if (event.code === "Space" && this.timerRunning && this.actualState == RUNNING) {
-            this.stop();
+            await this.stop();
         }
     }
 
@@ -93,7 +108,7 @@ export default class extends Controller {
     /**
      * Fonction pour start le timer
      */
-    start() {
+    async start() {
 
         //On stop l'inspection si activée.
         if (this.actualState === INSPECTING) {
@@ -111,6 +126,9 @@ export default class extends Controller {
             this.timerTarget.innerText = this.hourMinSecFormat(elapsed)
         }
             , 10)
+        
+        //On profite de l'exécution du timer pour commencer à charger le nouveau mélange/patron
+        await this.newScrambleAndDraw(true);
     }
 
     /**
@@ -121,8 +139,9 @@ export default class extends Controller {
         //On applique un state NOT_READY pour que le Keyup ne redéclenche pas le timer juste après avoir pressé l'espace pour stop.
         this.actualState = NOT_READY;
         clearInterval(this.intervalID);
-
-        await this.refreshAndDrawScramble();
+        
+        //refresh;
+        this.refreshScrambleAndDraw();
         
         //Affichage du temps et calculs à réaliser pour les averages.
         const solveElement = document.querySelector('[data-controller="solve"]');
@@ -136,16 +155,20 @@ export default class extends Controller {
 
     /**
      * Fonction pour gérer la génération d'un nouveau mélange et de son patron
+     * @param solveInprogress si on est en train d'effectuer la résolution.
      */
-    async refreshAndDrawScramble() {
+    async newScrambleAndDraw(solveInprogress) {
 
         //Si une session valide est selectionnée
         if (this.listofsessionsTarget.value !== "") {
-            this.scrambleTarget.innerText = "Génération du mélange en cours...";
-            this.cubedrawerTarget.innerHTML = "<h3>Génération du dessin en cours...</h3>"
-            const newScramble = await this.refreshScramble();
-            if (newScramble) {
-                this.scrambleTarget.innerText = newScramble;
+
+            if (!solveInprogress) {
+                this.scrambleTarget.innerText = "Génération du mélange en cours...";
+                this.cubedrawerTarget.innerHTML = "<h3>Génération du dessin en cours...</h3>"
+            }
+            
+            this.currentScramble = await this.generateScramble();
+            if (this.currentScramble) {
 
                 //Selon la dimension "n", on va créer une grid NxN en fonction du cube à afficher.
                 let i = 0;
@@ -157,11 +180,7 @@ export default class extends Controller {
                     stickersSize *= 0.85;
                 }
 
-                await this.drawScramble(newScramble, gridSectionToDo, stickersSize);
-                
-                this.cubedrawerTarget.innerHTML = draw;
-                
-                
+                this.currentDraw = await this.drawScramble(this.currentScramble, gridSectionToDo, stickersSize);                
             }
         } else {
             this.scrambleTarget.innerText = "Aucune session n'a été choisie !";
@@ -170,10 +189,10 @@ export default class extends Controller {
     }
 
     /**
-     * Pouvoir refresh le scramble à l'écran par un autre.
+     * Générer un nouveau scramble en fonction du contexte.
      * @returns le nouveau scramble généré
      */
-    async refreshScramble() {
+    async generateScramble() {
 
         let theEvent = this.listofsessionsTarget.value;
         let newScramble = "";
@@ -209,6 +228,8 @@ export default class extends Controller {
      * @param {string} scramble 
      * @param {string} gridSectionToDo 
      * @param {number} stickersSize 
+     * 
+     * @return le patron
      */
     async drawScramble(scramble, gridSectionToDo, stickersSize) {
 
@@ -230,7 +251,7 @@ export default class extends Controller {
                 const data = await response.json();
 
                 let cube = data.cubeScrambled;
-                this.cubedrawerTarget.innerHTML = this.renderCubeDraw(cube, gridSectionToDo, stickersSize);
+                return this.renderCubeDraw(cube, gridSectionToDo, stickersSize);
 
             } catch (error) {
                 this.cubedrawerTarget.innerHTML = "<h3>Problème lors de l'affichage du dessin.</h3>";
@@ -324,6 +345,21 @@ export default class extends Controller {
             document.querySelector("#overlay-session").remove();
         }
         
+    }
+
+    async changeSession() {
+        if (this.listofsessionsTarget.value !== "") {
+            await this.newScrambleAndDraw(false);
+            this.refreshScrambleAndDraw();
+            this.timerTarget.innerText = "0.00";
+        }
+        
+    }
+
+    //Mettre à jour le scramble et son patron
+    refreshScrambleAndDraw() {
+        this.scrambleTarget.innerText = this.currentScramble;
+        this.cubedrawerTarget.innerHTML = this.currentDraw;
     }
 
 
